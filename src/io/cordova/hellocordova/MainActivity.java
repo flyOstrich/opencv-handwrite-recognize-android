@@ -21,7 +21,6 @@ package io.cordova.hellocordova;
 
 import android.os.Bundle;
 import org.apache.cordova.*;
-import com.example.handwrite.ImagePro;
 
 public class MainActivity extends CordovaActivity
 {
@@ -30,10 +29,6 @@ public class MainActivity extends CordovaActivity
     {
         super.onCreate(savedInstanceState);
         // Set by <content src="index.html" /> in config.xml
-
-        ImagePro pro=new ImagePro();
-        pro.imgget();
         loadUrl(launchUrl);
-
     }
 }

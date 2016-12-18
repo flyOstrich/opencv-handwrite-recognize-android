@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/CordovaLib/CordovaLib.iml" filepath="$PROJECT_DIR$/CordovaLib/CordovaLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/HandWriteRecognize/HandWriteRecognize.iml" filepath="$PROJECT_DIR$/HandWriteRecognize/HandWriteRecognize.iml" />
+      <module fileurl="file://$PROJECT_DIR$/openCVLibrary310/openCVLibrary310.iml" filepath="$PROJECT_DIR$/openCVLibrary310/openCVLibrary310.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opencv-handwrite-recognize-android.iml" filepath="$PROJECT_DIR$/opencv-handwrite-recognize-android.iml" />
+    </modules>
+  </component>
+</project>
