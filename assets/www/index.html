@@ -6,10 +6,13 @@
     <meta name="viewport" content="initial-scale=0.5, maximum-scale=0.5, minimum-scale=0.5, user-scalable=no">
 </head>
 <body ng-controller="mainCtrl as ctrl">
-        <div pw-canvas options="{width: 300, height: 500, color: 'black'}" version="ctrl.version"></div>
+        <div pw-canvas options="ctrl.options"
+             version="ctrl.version"
+             event-delegate="ctrl.eventDelegate"></div>
 </body>
 <script type="text/javascript" src="cordova.js"></script>
-<script type="text/javascript" src="angular.js"></script>
-<script type="text/javascript" src="angular-canvas-painter.js"></script>
+<script type="text/javascript" src="libs/jquery.js"></script>
+<script type="text/javascript" src="libs/angular.js"></script>
+<script type="text/javascript" src="libs/angular-canvas-painter.js"></script>
 <script type="text/javascript" src="js/index.js"></script>
 </html>

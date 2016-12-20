@@ -4,6 +4,8 @@ local.properties
 /gradlew
 /gradlew.bat
 /gradle
+.gradle
+.idea
 # Ant builds
 ant-build
 ant-gen
@@ -14,3 +16,4 @@ out
 build
 .externalNativeBuild
 libs
+

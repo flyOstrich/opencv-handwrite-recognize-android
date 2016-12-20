@@ -20,7 +20,8 @@
 package io.cordova.hellocordova;
 
 import android.os.Bundle;
-import org.apache.cordova.*;
+
+import org.apache.cordova.CordovaActivity;
 
 public class MainActivity extends CordovaActivity
 {
