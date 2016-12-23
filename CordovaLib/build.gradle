@@ -15,9 +15,6 @@
    specific language governing permissions and limitations
    under the License.
 */
-
-
-
 buildscript {
     repositories {
         mavenCentral()
@@ -28,25 +25,20 @@ buildscript {
     }
 
 }
-
 apply plugin: 'android-library'
-
 ext {
     apply from: 'cordova.gradle'
     cdvCompileSdkVersion = privateHelpers.getProjectTarget()
     cdvBuildToolsVersion = privateHelpers.findLatestInstalledBuildTools()
 }
-
 android {
     compileSdkVersion cdvCompileSdkVersion
     buildToolsVersion cdvBuildToolsVersion
     publishNonDefault true
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6
     }
-
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -58,4 +50,12 @@ android {
             assets.srcDirs = ['assets']
         }
     }
+    buildTypes {
+        debug {
+            jniDebuggable true
+        }
+    }
+}
+
+dependencies {
 }

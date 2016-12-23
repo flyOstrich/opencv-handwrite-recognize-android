@@ -1,4 +1,7 @@
 apply plugin: 'com.android.library'
+repositories {
+    mavenCentral()
+}
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.1"
@@ -8,11 +11,10 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++11 -frtti -fexceptions"
+                cppFlags ""
             }
         }
 
@@ -26,19 +28,25 @@ android {
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
-
         }
     }
     sourceSets {
         main {
-            assets.srcDirs = ['src/main/assets', 'src/main/assets/']
             jniLibs.srcDirs = ['/Users/allere/Downloads/OpenCV-android-sdk2/sdk/native/libs']
             jni.srcDirs = ['src/main/jni', 'src/main/jni/']
         }
-
+        instrumentTest {
+            java.srcDir 'src/androidTest/java'
+            assets.srcDir 'src/androidTest/assets'
+        }
     }
 }
-
 dependencies {
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testCompile 'com.android.support:appcompat-v7:25.1.0'
+    testCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support:support-v4:25.1.0'
     compile project(':openCVLibrary310')
 }

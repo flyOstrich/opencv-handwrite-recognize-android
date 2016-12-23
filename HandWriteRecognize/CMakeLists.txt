@@ -3,7 +3,6 @@
 # value of 3.4.0 or lower.
 
 cmake_minimum_required(VERSION 3.4.1)
-
 set(OpenCV_DIR /Users/allere/Downloads/OpenCV-android-sdk2/sdk/native/jni)
 
 find_package(OpenCV REQUIRED)
@@ -14,7 +13,7 @@ find_package(OpenCV REQUIRED)
 # Gradle automatically packages shared libraries with your APK.
 
 add_library( # Sets the name of the library.
-             native-lib
+             handwrite-recognize-lib
 
              # Sets the library as a shared library.
              SHARED
@@ -54,7 +53,8 @@ set_target_properties(libopencv_java3 PROPERTIES
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-                       native-lib
+                       handwrite-recognize-lib
+
 
 
                        # Links the target library to the log library
