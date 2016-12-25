@@ -6,6 +6,7 @@ local.properties
 /gradle
 .gradle
 .idea
+.DS_Store
 # Ant builds
 ant-build
 ant-gen

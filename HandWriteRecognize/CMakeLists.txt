@@ -3,7 +3,7 @@
 # value of 3.4.0 or lower.
 
 cmake_minimum_required(VERSION 3.4.1)
-set(OpenCV_DIR /Users/allere/Downloads/OpenCV-android-sdk2/sdk/native/jni)
+set(OpenCV_DIR /Users/pjl/Downloads/OpenCV-android-sdk/sdk/native/jni)
 
 find_package(OpenCV REQUIRED)
 
@@ -21,7 +21,8 @@ add_library( # Sets the name of the library.
              # Provides a relative path to your source file(s).
              # Associated headers in the same location as their source
              # file are automatically included.
-             src/main/jni/hand-write-recognize.cpp )
+             src/main/jni/hand-write-recognize.cpp
+             src/main/jni/trainer.cpp)
 
 
 

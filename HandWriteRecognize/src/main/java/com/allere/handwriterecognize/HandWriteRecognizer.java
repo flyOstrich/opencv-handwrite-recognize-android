@@ -15,6 +15,8 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import java.util.List;
+
 import static org.opencv.android.Utils.bitmapToMat;
 
 /**
@@ -85,5 +87,6 @@ public class HandWriteRecognizer {
     }
 
     public native String recognize(long mat,int height,int width);
+    public native String train(String[] images,String dir);
     public native void testOpencv();
 }

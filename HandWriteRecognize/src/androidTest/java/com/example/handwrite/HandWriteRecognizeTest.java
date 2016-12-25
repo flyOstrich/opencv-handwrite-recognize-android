@@ -12,6 +12,9 @@ import com.allere.handwriterecognize.HandWriteRecognizer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by allere on 16/12/21.
  */
@@ -38,8 +41,10 @@ public class HandWriteRecognizeTest {
         Context appContext = InstrumentationRegistry.getInstrumentation().getContext();
         FileOperator optr=new FileOperator(appContext);
         try {
+            HandWriteRecognizer handWriteRecognizer=new HandWriteRecognizer();
             String[] files=optr.getTrainFileNames();
             optr.MoveTrainFilesToFileDir(files);
+            handWriteRecognizer.train(files,optr.getTrainImageDir());
         }catch (Exception e){
             Log.e("InstrumentTest",e.getMessage());
         }

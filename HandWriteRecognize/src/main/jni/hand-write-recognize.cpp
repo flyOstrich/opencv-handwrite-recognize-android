@@ -1,8 +1,8 @@
 #include <jni.h>
 #include <string>
+#include "include/trainer.h";
 #include <opencv2/opencv.hpp>
 
-//#include "./include/common.h"
 //#include <android/asset_manager.h>
 //#include <android/asset_manager_jni.h>
 //#include <android/log.h>
@@ -23,12 +23,12 @@ using namespace cv::ml;
 extern "C"
 jstring
 Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
-        JNIEnv *env,jlong imgMat,jint height,jint width) {
+        JNIEnv *env, jlong imgMat, jint height, jint width) {
 
     std::string hello = "Hello from C++2222222222222";
-    cv::Mat mat= *(cv::Mat *)imgMat;
-    IplImage img=mat;
-    const char* filename="HOG_SVM_DATA.xml";
+    cv::Mat mat = *(cv::Mat *) imgMat;
+    IplImage img = mat;
+    const char *filename = "HOG_SVM_DATA.xml";
 //    AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
 //    AAsset* asset = AAssetManager_open(mgr, filename,AASSET_MODE_UNKNOWN);
 //    off_t bufferSize = AAsset_getLength(asset);
@@ -41,7 +41,7 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
 
 extern "C"
 void
-Java_com_allere_handwriterecognize_HandWriteRecognizer_testOpencv(){
+Java_com_allere_handwriterecognize_HandWriteRecognizer_testOpencv() {
     // Data for visual representation
     int width = 512, height = 512;
     Mat image = Mat::zeros(height, width, CV_8UC3);
@@ -49,7 +49,10 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_testOpencv(){
     // Set up training data
     //! [setup1]
     int labels[4] = {1, -1, -1, -1};
-    float trainingData[4][2] = { {501, 10}, {255, 10}, {501, 255}, {10, 501} };
+    float trainingData[4][2] = {{501, 10},
+                                {255, 10},
+                                {501, 255},
+                                {10,  501}};
     //! [setup1]
     //! [setup2]
     Mat trainingDataMat(4, 2, CV_32FC1, trainingData);
@@ -70,4 +73,31 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_testOpencv(){
     svm->save("/data/user/0/com.example.handwrite.test/files/trainres.yml");
 
 }
+
+extern "C"
+jstring
+Java_com_allere_handwriterecognize_HandWriteRecognizer_train(
+        JNIEnv *env,
+        jobject,
+        jobjectArray joarr,
+        jstring  jpath) {
+    Trainer::ImageLoader img_loader;
+    Trainer::HogComputer hogComputer;
+    int len = env->GetArrayLength(joarr);
+    const char* c_path_str=env->GetStringUTFChars(jpath,0);
+    std::string dir=c_path_str;
+    std::vector<std::string> img_path_vector;
+    for (int i = 0; i < len; i++) {
+        jstring j_str = (jstring) env->GetObjectArrayElement(joarr, i);
+        const char *c_str = env->GetStringUTFChars(j_str, 0);
+        std::string str = c_str;
+        env->ReleaseStringUTFChars(j_str,c_str);
+        img_path_vector.push_back(str);
+    }
+    std::vector<cv::Mat> img_list=img_loader.loadImages(img_path_vector,dir);
+    std::vector<cv::Mat> gradient_list=hogComputer.getGradientList(img_list);
+    return env->NewStringUTF("sss");
+}
+
+
 
