@@ -84,8 +84,12 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_train(
     Trainer::ImageLoader img_loader;
     Trainer::HogComputer hogComputer;
     int len = env->GetArrayLength(joarr);
+
     const char* c_path_str=env->GetStringUTFChars(jpath,0);
     std::string dir=c_path_str;
+    env->ReleaseStringUTFChars(jpath,c_path_str);
+    std::string trained_result_location=dir+"/handwrite_trained_result.yml";
+
     std::vector<std::string> img_path_vector;
     for (int i = 0; i < len; i++) {
         jstring j_str = (jstring) env->GetObjectArrayElement(joarr, i);
@@ -96,6 +100,13 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_train(
     }
     std::vector<cv::Mat> img_list=img_loader.loadImages(img_path_vector,dir);
     std::vector<cv::Mat> gradient_list=hogComputer.getGradientList(img_list);
+    cv::Mat train_data=hogComputer.convertGradientToMlFormat(gradient_list);
+    int train_data_len=train_data.rows;
+    std::vector<int> labels(train_data_len-1,0);
+    labels.push_back(1);
+    hogComputer.trainSvm(train_data,labels,trained_result_location);
+
+
     return env->NewStringUTF("sss");
 }
 

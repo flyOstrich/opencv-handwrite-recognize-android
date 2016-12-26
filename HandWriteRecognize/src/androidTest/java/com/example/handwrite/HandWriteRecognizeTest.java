@@ -45,6 +45,7 @@ public class HandWriteRecognizeTest {
             String[] files=optr.getTrainFileNames();
             optr.MoveTrainFilesToFileDir(files);
             handWriteRecognizer.train(files,optr.getTrainImageDir());
+            int a=1;
         }catch (Exception e){
             Log.e("InstrumentTest",e.getMessage());
         }

@@ -3,7 +3,7 @@
 # value of 3.4.0 or lower.
 
 cmake_minimum_required(VERSION 3.4.1)
-set(OpenCV_DIR /Users/pjl/Downloads/OpenCV-android-sdk/sdk/native/jni)
+set(OpenCV_DIR /Users/allere/Downloads/OpenCV-android-sdk2/sdk/native/jni)
 
 find_package(OpenCV REQUIRED)
 
