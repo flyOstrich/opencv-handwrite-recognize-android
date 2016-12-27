@@ -33,7 +33,7 @@ public class HandWriteRecognizeTest {
     @Test
     public void TestOpenCV(){
         HandWriteRecognizer handWriteRecognizer=new HandWriteRecognizer();
-        handWriteRecognizer.testOpencv();
+//        handWriteRecognizer.testOpencv();
         int a=0;
     }
     @Test
@@ -45,7 +45,6 @@ public class HandWriteRecognizeTest {
             String[] files=optr.getTrainFileNames();
             optr.MoveTrainFilesToFileDir(files);
             handWriteRecognizer.train(files,optr.getTrainImageDir());
-            int a=1;
         }catch (Exception e){
             Log.e("InstrumentTest",e.getMessage());
         }

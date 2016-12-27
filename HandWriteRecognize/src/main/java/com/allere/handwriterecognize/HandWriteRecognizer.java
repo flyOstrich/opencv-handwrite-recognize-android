@@ -88,5 +88,4 @@ public class HandWriteRecognizer {
 
     public native String recognize(long mat,int height,int width);
     public native String train(String[] images,String dir);
-    public native void testOpencv();
 }

@@ -1,34 +1,17 @@
 #include <jni.h>
 #include <string>
-#include "include/trainer.h";
-#include <opencv2/opencv.hpp>
+#include "include/trainer.h"
+#include "include/log.h"
 
 //#include <android/asset_manager.h>
 //#include <android/asset_manager_jni.h>
-//#include <android/log.h>
 
-#define TAG "HELLO"
-//#define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__)
-//#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG , TAG, __VA_ARGS__)
-//#define LOGI(...) __android_log_print(ANDROID_LOG_INFO , TAG, __VA_ARGS__)
-//#define LOGW(...) __android_log_print(ANDROID_LOG_WARN , TAG, __VA_ARGS__)
-//#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR , TAG, __VA_ARGS__)
-//
+
 
 
 using namespace cv;
 using namespace cv::ml;
 
-
-extern "C"
-jstring
-Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
-        JNIEnv *env, jlong imgMat, jint height, jint width) {
-
-    std::string hello = "Hello from C++2222222222222";
-    cv::Mat mat = *(cv::Mat *) imgMat;
-    IplImage img = mat;
-    const char *filename = "HOG_SVM_DATA.xml";
 //    AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
 //    AAsset* asset = AAssetManager_open(mgr, filename,AASSET_MODE_UNKNOWN);
 //    off_t bufferSize = AAsset_getLength(asset);
@@ -36,43 +19,30 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
 //    buffer[bufferSize]=0;
 //    int numBytesRead = AAsset_read(asset, buffer, bufferSize);
 
-    return env->NewStringUTF(hello.c_str());
-}
+
 
 extern "C"
-void
-Java_com_allere_handwriterecognize_HandWriteRecognizer_testOpencv() {
-    // Data for visual representation
-    int width = 512, height = 512;
-    Mat image = Mat::zeros(height, width, CV_8UC3);
+jstring
+Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
+        JNIEnv *env,
+        jobject,
+        jstring recognizing_image_path,
+        jstring  svm_model_path) {
+    Mat gray,resizedGray;
 
-    // Set up training data
-    //! [setup1]
-    int labels[4] = {1, -1, -1, -1};
-    float trainingData[4][2] = {{501, 10},
-                                {255, 10},
-                                {501, 255},
-                                {10,  501}};
-    //! [setup1]
-    //! [setup2]
-    Mat trainingDataMat(4, 2, CV_32FC1, trainingData);
-    Mat labelsMat(4, 1, CV_32SC1, labels);
-    //! [setup2]
+//    const char* c_svm_model_path=env->GetStringUTFChars(svm_model_path,0);
+//    const char* c_recognizing_image_path=env->GetStringUTFChars(recognizing_image_path,0);
+//    Mat recognizing_image=imread(c_recognizing_image_path);
+//    cvtColor(recognizing_image, gray, cv::COLOR_BGR2GRAY );
+//    resize(gray,resizedGray,Size(28,28));
+//    Ptr<SVM> svm=SVM::load(c_svm_model_path);
+//    env->ReleaseStringUTFChars(svm_model_path,c_svm_model_path);
+//    env->ReleaseStringUTFChars(recognizing_image_path,c_recognizing_image_path);
 
 
-    // Train the SVM
-    //! [init]
-    Ptr<SVM> svm = SVM::create();
-    svm->setType(SVM::C_SVC);
-    svm->setKernel(SVM::LINEAR);
-    svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
-    //! [init]
-    //! [train]
-    svm->train(trainingDataMat, ROW_SAMPLE, labelsMat);
-    //! [train]
-    svm->save("/data/user/0/com.example.handwrite.test/files/trainres.yml");
-
+    return env->NewStringUTF("success");
 }
+
 
 extern "C"
 jstring
@@ -81,6 +51,8 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_train(
         jobject,
         jobjectArray joarr,
         jstring  jpath) {
+    LOGD("Java_com_allere_handwriterecognize_HandWriteRecognizer_train");
+
     Trainer::ImageLoader img_loader;
     Trainer::HogComputer hogComputer;
     int len = env->GetArrayLength(joarr);
@@ -98,17 +70,13 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_train(
         env->ReleaseStringUTFChars(j_str,c_str);
         img_path_vector.push_back(str);
     }
-    std::vector<cv::Mat> img_list=img_loader.loadImages(img_path_vector,dir);
-    std::vector<cv::Mat> gradient_list=hogComputer.getGradientList(img_list);
-    cv::Mat train_data=hogComputer.convertGradientToMlFormat(gradient_list);
-    int train_data_len=train_data.rows;
-    std::vector<int> labels(train_data_len-1,0);
-    labels.push_back(1);
-    hogComputer.trainSvm(train_data,labels,trained_result_location);
-
-
-    return env->NewStringUTF("sss");
+    std::list< std::pair<int,cv::Mat> > img_list=img_loader.loadImages(img_path_vector,dir);
+    std::list< std::pair<int,cv::Mat> > gradient_list=Trainer::HogComputer::getGradientList(img_list);
+    std::pair<cv::Mat,cv::Mat> train_data=Trainer::HogComputer::convertGradientToMlFormat(gradient_list);
+    hogComputer.trainSvm(train_data,trained_result_location);
+    return env->NewStringUTF("success");
 }
+
 
 
 

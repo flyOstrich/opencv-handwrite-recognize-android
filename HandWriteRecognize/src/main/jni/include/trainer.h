@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <iostream>
+#include <list>
 #include <jni.h>
 #include <opencv2/opencv.hpp>
 //using namespace cv;
@@ -8,12 +9,16 @@
 namespace Trainer {
     class HogComputer {
     public:
-       std::vector<cv::Mat> getGradientList(std::vector<cv::Mat> & image_list);
-       cv::Mat convertGradientToMlFormat(std::vector<cv::Mat> & gradient_list);
-       void trainSvm(cv::Mat train_data,std::vector<int> labels,std::string trained_result_location);
+        static cv::Mat getHogDescriptorMat(const char* recognizing_img_path);
+        static cv::Mat getHogDescriptorForImage(cv::Mat image);
+        static std::list< std::pair<int,cv::Mat> > getGradientList(std::list< std::pair<int,cv::Mat> > & image_list);
+        static std::pair< cv::Mat,cv::Mat>  convertGradientToMlFormat(std::list< std::pair<int,cv::Mat> > & gradient_list);
+        static void trainSvm(std::pair<cv::Mat,cv::Mat> train_data,std::string trained_result_location);
     };
     class ImageLoader {
+    private:
+        std::vector<int> imageLabels;
     public:
-        std::vector<cv::Mat> loadImages(std::vector<std::string> image_path_list,std::string dir);
+        std::list< std::pair<int,cv::Mat> > loadImages(std::vector<std::string> image_path_list,std::string dir);
     };
 }
