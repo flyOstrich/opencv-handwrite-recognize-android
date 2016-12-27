@@ -30,14 +30,14 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
         jstring  svm_model_path) {
     Mat gray,resizedGray;
 
-//    const char* c_svm_model_path=env->GetStringUTFChars(svm_model_path,0);
-//    const char* c_recognizing_image_path=env->GetStringUTFChars(recognizing_image_path,0);
-//    Mat recognizing_image=imread(c_recognizing_image_path);
-//    cvtColor(recognizing_image, gray, cv::COLOR_BGR2GRAY );
-//    resize(gray,resizedGray,Size(28,28));
-//    Ptr<SVM> svm=SVM::load(c_svm_model_path);
-//    env->ReleaseStringUTFChars(svm_model_path,c_svm_model_path);
-//    env->ReleaseStringUTFChars(recognizing_image_path,c_recognizing_image_path);
+    const char* c_svm_model_path=env->GetStringUTFChars(svm_model_path,0);
+    const char* c_recognizing_image_path=env->GetStringUTFChars(recognizing_image_path,0);
+    Mat recognizing_image=imread(c_recognizing_image_path);
+    cvtColor(recognizing_image, gray, cv::COLOR_BGR2GRAY );
+    resize(gray,resizedGray,Size(28,28));
+    Ptr<SVM> svm= StatModel::load<SVM>( c_svm_model_path );
+    env->ReleaseStringUTFChars(svm_model_path,c_svm_model_path);
+    env->ReleaseStringUTFChars(recognizing_image_path,c_recognizing_image_path);
 
 
     return env->NewStringUTF("success");
