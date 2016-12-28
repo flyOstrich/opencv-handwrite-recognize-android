@@ -36,6 +36,7 @@ android {
             jni.srcDirs = ['src/main/jni', 'src/main/jni/']
         }
         instrumentTest {
+            jniLibs.srcDirs = ['D:\\\\android\\\\OpenCV-android-sdk\\\\sdk\\\\native\\\\libs']
             java.srcDir 'src/androidTest/java'
             assets.srcDir 'src/androidTest/assets'
         }

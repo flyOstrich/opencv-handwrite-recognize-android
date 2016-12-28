@@ -11,9 +11,16 @@ import com.allere.handwriterecognize.HandWriteRecognizer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.opencv.android.Utils.bitmapToMat;
 
 /**
  * Created by allere on 16/12/21.
@@ -62,17 +69,41 @@ public class HandWriteRecognizeTest {
 
     @Test
     public void TestReadImgMatList() {
-        Context appContext = InstrumentationRegistry.getInstrumentation().getContext();
-        FileOperator optr = new FileOperator(appContext);
-        try {
-            HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
-            String svmModelFile=handWriteRecognizer.getSvmModelFilePath(appContext);
-            //train
-            String[] files = optr.getAssetFileNames(FileOperator.TRAIN_IMAGES_DIR);
-            optr.ReadFilesMat(files, FileOperator.TRAIN_IMAGES_DIR);
+        final Context appContext = InstrumentationRegistry.getInstrumentation().getContext();
 
-        } catch (Exception e) {
-            Log.e("InstrumentTest", e.getMessage());
+
+        BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(appContext) {
+            @Override
+            public void onManagerConnected(int status) {
+                switch (status) {
+                    case LoaderCallbackInterface.SUCCESS: {
+                        try {
+                            FileOperator optr = new FileOperator(appContext);
+                            HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
+                            //train
+                            String[] files = optr.getAssetFileNames(FileOperator.TRAIN_IMAGES_DIR);
+                            List<Mat> res=optr.ReadFilesMat(files, FileOperator.TRAIN_IMAGES_DIR);
+                            Log.d("RES","res size is"+res.size());
+                            int a=1;
+                            a++;
+                        } catch (Exception e) {
+                            Log.e("InstrumentTest", e.getMessage());
+                        }
+                    }
+                    break;
+                    default: {
+                        super.onManagerConnected(status);
+                    }
+                    break;
+                }
+            }
+        };
+        if (!OpenCVLoader.initDebug()) {
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, appContext, mLoaderCallback);
+        } else {
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
+
+
     }
 }

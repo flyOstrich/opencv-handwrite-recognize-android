@@ -24,10 +24,10 @@ import static org.opencv.android.Utils.bitmapToMat;
  */
 
 public class FileOperator {
-    public static final String TAG = "FileOperator";
+    public static final String TAG="FileOperator";
     public static final String TRAIN_IMAGES_DIR = "t10k-images";
-    public static final String TEST_IMAGES_DIR = "testImages";
-    private Context ctx = null;
+    public static final String TEST_IMAGES_DIR="testImages";
+    private Context ctx=null;
 
     public FileOperator(Context context) {
         this.setCtx(context);
@@ -37,23 +37,22 @@ public class FileOperator {
         return this.getCtx().getAssets().list(filesDir);
     }
 
-    public boolean createDataImageDir(String filesDir) throws Exception {
-        Context ctx = this.getCtx();
-        if (ctx == null) throw new Exception("can not find appContext");
-        String dataFilePath = ctx.getFilesDir().getAbsolutePath();
-        String trainImageDir = dataFilePath + "/" + filesDir;
-        File file = new File(trainImageDir);
-        if (!file.exists()) {
+    public boolean createDataImageDir(String filesDir) throws Exception{
+        Context ctx=this.getCtx();
+        if(ctx==null) throw new Exception("can not find appContext");
+        String dataFilePath=ctx.getFilesDir().getAbsolutePath();
+        String trainImageDir=dataFilePath+"/"+filesDir;
+        File file=new File(trainImageDir);
+        if(!file.exists()){
             file.mkdir();
             return false;
         }
         return true;
     }
-
-    public List<Mat> ReadFilesMat(String[] files, String fileDir) throws IOException {
+    public List<Mat> ReadFilesMat(String[] files, String fileDir) throws IOException{
         InputStream srcfile;
-        List<Mat> matList = new ArrayList<>();
-        for (int i = 0; i < files.length; i++) {
+        List<Mat> matList=new ArrayList<>();
+        for(int i=0;i<files.length;i++){
             String fileName = files[i];
             srcfile = this.getCtx().getAssets().open(fileDir + "/" + fileName);
             int dataLen = srcfile.available();
@@ -61,16 +60,18 @@ public class FileOperator {
             srcfile.read(buffer);
             BitmapFactory.Options opts = new BitmapFactory.Options();
             opts.inJustDecodeBounds = false;
-            Bitmap img = BitmapFactory.decodeByteArray(buffer, 0, buffer.length, opts);
+            Bitmap img=BitmapFactory.decodeByteArray(buffer,0,buffer.length,opts);
             Mat mat = new Mat(img.getHeight(), img.getWidth(), CvType.CV_8UC3);
             bitmapToMat(img, mat);
             matList.add(mat);
             srcfile.close();
         }
+        Log.d(TAG,"reading image");
+
         return matList;
     }
 
-    public void MoveFilesToFileDir(String[] trainFiles, String fileDir) throws Exception {
+    public void MoveFilesToFileDir(String[] trainFiles,String fileDir) throws Exception {
         InputStream srcfile;
         FileOutputStream desFile;
         this.createDataImageDir(fileDir);
@@ -88,12 +89,12 @@ public class FileOperator {
                     + fileName);
             desFile.write(buffer);
             desFile.close();
-            Log.d(TAG, "move img --> " + fileName);
+            Log.d(TAG,"move img --> "+fileName);
         }
     }
 
-    public String getDataImageDir(String fileDir) {
-        return this.getCtx().getFilesDir().getAbsolutePath() + "/" + fileDir;
+    public String getDataImageDir(String fileDir){
+       return this.getCtx().getFilesDir().getAbsolutePath()+"/"+fileDir;
     }
 
     public Context getCtx() {
