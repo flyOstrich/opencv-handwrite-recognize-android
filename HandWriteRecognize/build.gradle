@@ -32,7 +32,7 @@ android {
     }
     sourceSets {
         main {
-            jniLibs.srcDirs = ['/Users/allere/Downloads/OpenCV-android-sdk2/sdk/native/libs']
+            jniLibs.srcDirs = ['D:\\\\android\\\\OpenCV-android-sdk\\\\sdk\\\\native\\\\libs']
             jni.srcDirs = ['src/main/jni', 'src/main/jni/']
         }
         instrumentTest {

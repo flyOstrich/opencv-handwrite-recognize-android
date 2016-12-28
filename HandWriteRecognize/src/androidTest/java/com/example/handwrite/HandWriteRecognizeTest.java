@@ -60,4 +60,19 @@ public class HandWriteRecognizeTest {
         }
     }
 
+    @Test
+    public void TestReadImgMatList() {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getContext();
+        FileOperator optr = new FileOperator(appContext);
+        try {
+            HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
+            String svmModelFile=handWriteRecognizer.getSvmModelFilePath(appContext);
+            //train
+            String[] files = optr.getAssetFileNames(FileOperator.TRAIN_IMAGES_DIR);
+            optr.ReadFilesMat(files, FileOperator.TRAIN_IMAGES_DIR);
+
+        } catch (Exception e) {
+            Log.e("InstrumentTest", e.getMessage());
+        }
+    }
 }

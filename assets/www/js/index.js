@@ -29,6 +29,14 @@ app.controller('mainCtrl', function () {
         console.log('paintEnd!');
         me.timer=me.startTimer();
     })
+    this.reg=function(){
+       var url = document.querySelector('#pwCanvasMain').toDataURL();
+                  handwrite.recognize(url, function () {
+                      console.log(arguments);
+                  }, function () {
+                      console.log(arguments);
+       })
+    }
 });
 app.run(function ($window) {
     $window.document.addEventListener('deviceready', function () {

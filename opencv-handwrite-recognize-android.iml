@@ -121,6 +121,7 @@
     <orderEntry type="module" module-name="CordovaLib" exported="" />
     <orderEntry type="module" module-name="openCVLibrary310" exported="" />
     <orderEntry type="module" module-name="HandWriteRecognize" exported="" />
+    <orderEntry type="library" exported="" name="android-android-23" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="support-annotations-25.1.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="espresso-core-2.2.2" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="runner-0.5" level="project" />
