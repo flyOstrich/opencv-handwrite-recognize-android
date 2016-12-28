@@ -13,22 +13,23 @@ import java.io.InputStream;
  */
 
 public class FileOperator {
-    private static final String TRAIN_IMAGES_DIR = "trainImages";
+    public static final String TRAIN_IMAGES_DIR = "t10k-images";
+    public static final String TEST_IMAGES_DIR="testImages";
     private Context ctx=null;
 
     public FileOperator(Context context) {
         this.setCtx(context);
     }
 
-    public String[] getTrainFileNames() throws IOException {
-        return this.getCtx().getAssets().list(TRAIN_IMAGES_DIR);
+    public String[] getAssetFileNames(String filesDir) throws IOException {
+        return this.getCtx().getAssets().list(filesDir);
     }
 
-    public boolean createTrainImageDir() throws Exception{
+    public boolean createDataImageDir(String filesDir) throws Exception{
         Context ctx=this.getCtx();
         if(ctx==null) throw new Exception("can not find appContext");
         String dataFilePath=ctx.getFilesDir().getAbsolutePath();
-        String trainImageDir=dataFilePath+"/"+TRAIN_IMAGES_DIR;
+        String trainImageDir=dataFilePath+"/"+filesDir;
         File file=new File(trainImageDir);
         if(!file.exists()){
             file.mkdir();
@@ -37,20 +38,20 @@ public class FileOperator {
         return true;
     }
 
-    public void MoveTrainFilesToFileDir(String[] trainFiles) throws Exception {
+    public void MoveFilesToFileDir(String[] trainFiles,String fileDir) throws Exception {
         InputStream srcfile;
         FileOutputStream desFile;
-        this.createTrainImageDir();
+        this.createDataImageDir(fileDir);
         for (int i = 0; i < trainFiles.length; i++) {
             String fileName = trainFiles[i];
-            srcfile = this.getCtx().getAssets().open(TRAIN_IMAGES_DIR + "/" + fileName);
+            srcfile = this.getCtx().getAssets().open(fileDir + "/" + fileName);
             int dataLen = srcfile.available();
             byte[] buffer = new byte[dataLen];
             srcfile.read(buffer);
             srcfile.close();
             desFile = new FileOutputStream(this.getCtx().getFilesDir().getAbsolutePath()
                     + "/"
-                    + TRAIN_IMAGES_DIR
+                    + fileDir
                     + "/"
                     + fileName);
             desFile.write(buffer);
@@ -58,8 +59,8 @@ public class FileOperator {
         }
     }
 
-    public String getTrainImageDir(){
-       return this.getCtx().getFilesDir().getAbsolutePath()+"/"+TRAIN_IMAGES_DIR;
+    public String getDataImageDir(String fileDir){
+       return this.getCtx().getFilesDir().getAbsolutePath()+"/"+fileDir;
     }
 
     public Context getCtx() {

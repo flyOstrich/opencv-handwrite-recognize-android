@@ -22,7 +22,8 @@ add_library( # Sets the name of the library.
              # Associated headers in the same location as their source
              # file are automatically included.
              src/main/jni/hand-write-recognize.cpp
-             src/main/jni/trainer.cpp)
+             src/main/jni/trainer.cpp
+             src/main/jni/utils.cpp)
 
 
 

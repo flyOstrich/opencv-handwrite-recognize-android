@@ -29,6 +29,7 @@ public class HandWriteRecognizer {
     private static final String OPENCV_NOT_LOADED = "opencv is not loaded!";
     private static final String OPENCV_AVALIABLE = "opencv is successfully loaded!";
     private static final String BASE64_STR_CHARACTER = "base64,";
+    private static final String SVM_MODEL_FILE="handwrite_trained_result.yml";
 
     private Bitmap recognizeImg;
 
@@ -48,7 +49,7 @@ public class HandWriteRecognizer {
                         Log.i(TAG, OPENCV_AVALIABLE);
                         Mat mat = new Mat(getRecognizeImg().getHeight(), getRecognizeImg().getWidth(), CvType.CV_8UC3);
                         bitmapToMat(recognizeImg, mat);
-                        recognize(mat.getNativeObjAddr(),getRecognizeImg().getHeight(),getRecognizeImg().getWidth());
+//                        recognize(mat.getNativeObjAddr(),getRecognizeImg().getHeight(),getRecognizeImg().getWidth());
                     }
                     break;
                     default: {
@@ -69,6 +70,11 @@ public class HandWriteRecognizer {
         return retObj;
     }
 
+    public String getSvmModelFilePath(Context activityContext){
+        String filesDir=activityContext.getFilesDir().getAbsolutePath();
+        return filesDir+"/"+SVM_MODEL_FILE;
+    }
+
     private Bitmap getBitMapFromBase64Str(String base64Str) {
         base64Str = base64Str.substring(base64Str.indexOf(this.BASE64_STR_CHARACTER) + this.BASE64_STR_CHARACTER.length(), base64Str.length());
         byte bytes[] = Base64.decode(base64Str, Base64.DEFAULT);
@@ -86,6 +92,6 @@ public class HandWriteRecognizer {
         this.recognizeImg = recognizeImg;
     }
 
-    public native String recognize(long mat,int height,int width);
-    public native String train(String[] images,String dir);
+    public native String recognize(String recognize_img_dir,String[] recognizing_img_files,String svm_model_path);
+    public native String train(String[] images,String dir,String svm_model_path);
 }

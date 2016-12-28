@@ -4,6 +4,7 @@ local.properties
 /gradlew
 /gradlew.bat
 /gradle
+t10k-images
 .gradle
 .idea
 .DS_Store

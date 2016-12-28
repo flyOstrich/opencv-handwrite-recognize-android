@@ -34,8 +34,8 @@ public class MainActivity extends CordovaActivity
         super.onCreate(savedInstanceState);
         FileOperator optr=new FileOperator(this);
         try {
-            String[] files=optr.getTrainFileNames();
-            optr.MoveTrainFilesToFileDir(files);
+//            String[] files=optr.getTrainFileNames();
+//            optr.MoveTrainFilesToFileDir(files);
         }catch (Exception e){
             Log.e(TAG,e.getMessage());
         }

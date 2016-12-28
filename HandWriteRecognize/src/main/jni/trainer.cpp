@@ -28,15 +28,13 @@ std::pair<cv::Mat, cv::Mat>  Trainer::HogComputer::convertGradientToMlFormat(
 
     //--Convert data
     const int rows = (int) gradient_list.size();
-    const int cols = gradient_list.front().second.rows;
+    const int cols = gradient_list.front().second.cols;
     cv::Mat trainData = cv::Mat(rows, cols, CV_32FC1);
     int i = 0;
     std::vector<int> labels;
-    cv::Mat temp(1, cols, CV_32FC1);
     while (!gradient_list.empty()) {
         std::pair<int, cv::Mat> gradient_pair = gradient_list.front();
-        cv::transpose(gradient_pair.second, temp);
-        temp.copyTo(trainData.row(i));
+        gradient_pair.second.copyTo(trainData.row(i));
         labels.push_back(gradient_pair.first);
         i++;
         gradient_list.pop_front();
@@ -99,7 +97,7 @@ cv::Mat Trainer::HogComputer::getHogDescriptorMat(const char *recognizing_img_pa
     Mat recognizing_img = imread(recognizing_img_path);
     cvtColor(recognizing_img, gray, cv::COLOR_BGR2GRAY);
     resize(gray, resizedGray, Size(28, 28));
-
+    return Trainer::HogComputer::getHogDescriptorForImage(resizedGray);
 }
 
 cv::Mat Trainer::HogComputer::getHogDescriptorForImage(cv::Mat image) {
@@ -112,5 +110,9 @@ cv::Mat Trainer::HogComputer::getHogDescriptorForImage(cv::Mat image) {
     std::vector<float> descriptors;
     std::vector<cv::Point> location;
     hog.compute(image, descriptors, cv::Size(28, 28), cv::Size(0, 0), location);
-    return cv::Mat(descriptors).clone();
+    int size=descriptors.size();
+    Mat dMat = cv::Mat(descriptors).clone();
+    Mat resMat(1,size,CV_32FC1);
+    cv::transpose(dMat,resMat);
+    return resMat;
 }
