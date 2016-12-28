@@ -1,6 +1,8 @@
 package com.allere.handwriterecognize;
 
 import android.content.Context;
+import android.nfc.Tag;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,6 +15,7 @@ import java.io.InputStream;
  */
 
 public class FileOperator {
+    public static final String TAG="FileOperator";
     public static final String TRAIN_IMAGES_DIR = "t10k-images";
     public static final String TEST_IMAGES_DIR="testImages";
     private Context ctx=null;
@@ -56,6 +59,7 @@ public class FileOperator {
                     + fileName);
             desFile.write(buffer);
             desFile.close();
+            Log.d(TAG,"move img --> "+fileName);
         }
     }
 

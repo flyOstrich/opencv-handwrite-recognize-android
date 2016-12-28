@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.allere.handwriterecognize.FileOperator;
+import com.allere.handwriterecognize.HandWriteRecognizer;
 
 import org.apache.cordova.CordovaActivity;
 
@@ -32,14 +33,8 @@ public class MainActivity extends CordovaActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        FileOperator optr=new FileOperator(this);
-        try {
-//            String[] files=optr.getTrainFileNames();
-//            optr.MoveTrainFilesToFileDir(files);
-        }catch (Exception e){
-            Log.e(TAG,e.getMessage());
-        }
-        // Set by <content src="index.html" /> in config.xml
+
+            // Set by <content src="index.html" /> in config.xml
         loadUrl(launchUrl);
     }
 }
