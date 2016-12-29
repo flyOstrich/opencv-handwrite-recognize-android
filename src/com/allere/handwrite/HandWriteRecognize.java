@@ -1,5 +1,6 @@
 package com.allere.handwrite;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,6 +23,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 import java.util.List;
+import java.util.Map;
 
 import io.cordova.hellocordova.Main2Activity;
 
@@ -37,26 +39,42 @@ public class HandWriteRecognize extends CordovaPlugin {
     private HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
 
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+        final Context ctx=this.cordova.getActivity();
         if ("getHandWriteInfo".equals(action)) {
             if (args.length() != 0) {
                 String base64Str = (String) args.get(0);
 //                this.handWriteRecognizer.recognizeImg(base64Str,this.cordova.getActivity());
-                FileOperator optr = new FileOperator(this.cordova.getActivity());
-                try {
-                    HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
-                    String svmModelFile = handWriteRecognizer.getSvmModelFilePath(this.cordova.getActivity());
-                    //train
-                    String[] files = optr.getAssetFileNames(FileOperator.TRAIN_IMAGES_DIR);
-                    optr.MoveFilesToFileDir(files, FileOperator.TRAIN_IMAGES_DIR);
-                    handWriteRecognizer.train(files, optr.getDataImageDir(FileOperator.TRAIN_IMAGES_DIR), svmModelFile);
-                    //test recognize
-//            String[] test_files = optr.getAssetFileNames(FileOperator.TEST_IMAGES_DIR);
-//            optr.MoveFilesToFileDir(test_files, FileOperator.TEST_IMAGES_DIR);
-//            handWriteRecognizer.recognize(optr.getDataImageDir(FileOperator.TEST_IMAGES_DIR), test_files, svmModelFile);
-                } catch (Exception e) {
-                    Log.e("InstrumentTest", e.getMessage());
+                BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(ctx) {
+                    @Override
+                    public void onManagerConnected(int status) {
+                        switch (status) {
+                            case LoaderCallbackInterface.SUCCESS: {
+                                try {
+                                    FileOperator optr = new FileOperator(ctx);
+                                    HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
+                                    //train
+                                    String[] files = optr.getAssetFileNames(FileOperator.TRAIN_IMAGES_DIR);
+                                    Map res=optr.ReadFilesMat(files, FileOperator.TRAIN_IMAGES_DIR);
+                                    handWriteRecognizer.trainFromMat((Mat[])res.get("images"),(int[]) res.get("labels"),handWriteRecognizer.getSvmModelFilePath(ctx));
 
+                                } catch (Exception e) {
+                                    Log.e("InstrumentTest", e.getMessage());
+                                }
+                            }
+                            break;
+                            default: {
+                                super.onManagerConnected(status);
+                            }
+                            break;
+                        }
+                    }
+                };
+                if (!OpenCVLoader.initDebug()) {
+                    OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, ctx, mLoaderCallback);
+                } else {
+                    mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
                 }
+
                 toDebugActivity(base64Str);
                 JSONObject r = new JSONObject();
                 r.put("status", "true");

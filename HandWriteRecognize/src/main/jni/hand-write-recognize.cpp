@@ -76,6 +76,24 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_train(
     hogComputer.trainSvm(train_data,trained_result_location);
     return env->NewStringUTF("success");
 }
+extern "C"
+jstring
+Java_com_allere_handwriterecognize_HandWriteRecognizer_trainFromMat(
+        JNIEnv *env,
+        jobject,
+        jobjectArray matList,
+        jintArray labels,
+        jstring  svm_model_path) {
+    Trainer::HogComputer hogComputer;
+    std::list<std::pair<int,cv::Mat> > imgList=Util::ParamConverter::convertJobjectArrayToMatVector(env,matList,labels);
+    std::string trained_result_location=Util::ParamConverter::convertJstringToString(env,svm_model_path);
+    std::list< std::pair<int,cv::Mat> > gradient_list=Trainer::HogComputer::getGradientList(imgList);
+    std::pair<cv::Mat,cv::Mat> train_data=Trainer::HogComputer::convertGradientToMlFormat(gradient_list);
+    hogComputer.trainSvm(train_data,trained_result_location);
+    LOGD("train file location--->%s",trained_result_location.c_str());
+    return env->NewStringUTF("success");
+}
+
 
 
 

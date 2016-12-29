@@ -3,6 +3,7 @@ package com.allere.handwriterecognize;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.util.Base64;
 import android.util.Log;
 
@@ -71,7 +72,7 @@ public class HandWriteRecognizer {
     }
 
     public String getSvmModelFilePath(Context activityContext){
-        String filesDir=activityContext.getFilesDir().getAbsolutePath();
+        String filesDir= activityContext.getExternalFilesDir("files").getAbsolutePath();
         return filesDir+"/"+SVM_MODEL_FILE;
     }
 
@@ -94,4 +95,5 @@ public class HandWriteRecognizer {
 
     public native String recognize(String recognize_img_dir,String[] recognizing_img_files,String svm_model_path);
     public native String train(String[] images,String dir,String svm_model_path);
+    public native String trainFromMat(Mat[] matList,int[] labels,String svm_model_path);
 }

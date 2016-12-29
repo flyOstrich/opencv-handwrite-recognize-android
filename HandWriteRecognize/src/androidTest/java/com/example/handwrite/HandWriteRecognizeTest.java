@@ -19,6 +19,7 @@ import org.opencv.core.Mat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.opencv.android.Utils.bitmapToMat;
 
@@ -82,10 +83,9 @@ public class HandWriteRecognizeTest {
                             HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
                             //train
                             String[] files = optr.getAssetFileNames(FileOperator.TRAIN_IMAGES_DIR);
-                            List<Mat> res=optr.ReadFilesMat(files, FileOperator.TRAIN_IMAGES_DIR);
-                            Log.d("RES","res size is"+res.size());
-                            int a=1;
-                            a++;
+                            Map res=optr.ReadFilesMat(files, FileOperator.TRAIN_IMAGES_DIR);
+                            handWriteRecognizer.trainFromMat((Mat[])res.get("images"),(int[]) res.get("labels"),handWriteRecognizer.getSvmModelFilePath(appContext));
+
                         } catch (Exception e) {
                             Log.e("InstrumentTest", e.getMessage());
                         }
