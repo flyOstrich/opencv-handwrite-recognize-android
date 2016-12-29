@@ -42,7 +42,8 @@ public class HandWriteRecognize extends CordovaPlugin {
         final Context ctx=this.cordova.getActivity();
         if ("getHandWriteInfo".equals(action)) {
             if (args.length() != 0) {
-                String base64Str = (String) args.get(0);
+                final JSONObject r = new JSONObject();
+                final String base64Str = (String) args.get(0);
 //                this.handWriteRecognizer.recognizeImg(base64Str,this.cordova.getActivity());
                 BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(ctx) {
                     @Override
@@ -51,12 +52,11 @@ public class HandWriteRecognize extends CordovaPlugin {
                             case LoaderCallbackInterface.SUCCESS: {
                                 try {
                                     FileOperator optr = new FileOperator(ctx);
+                                    optr.moveSvmModelFromAssetsDirToFilesDir(ctx);
                                     HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
-                                    //train
-                                    String[] files = optr.getAssetFileNames(FileOperator.TRAIN_IMAGES_DIR);
-                                    Map res=optr.ReadFilesMat(files, FileOperator.TRAIN_IMAGES_DIR);
-                                    handWriteRecognizer.trainFromMat((Mat[])res.get("images"),(int[]) res.get("labels"),handWriteRecognizer.getSvmModelFilePath(ctx));
-
+                                    int result=handWriteRecognizer.recognizeBase64FormatImg(base64Str,ctx);
+                                    r.put("recognizeResult",result);
+                                    Log.d("InstrumentTest","predict result is --->"+result );
                                 } catch (Exception e) {
                                     Log.e("InstrumentTest", e.getMessage());
                                 }
@@ -75,8 +75,7 @@ public class HandWriteRecognize extends CordovaPlugin {
                     mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
                 }
 
-                toDebugActivity(base64Str);
-                JSONObject r = new JSONObject();
+//                toDebugActivity(base64Str);
                 r.put("status", "true");
                 callbackContext.success(r);
             }

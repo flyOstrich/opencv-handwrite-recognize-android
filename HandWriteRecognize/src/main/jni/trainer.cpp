@@ -99,6 +99,12 @@ cv::Mat Trainer::HogComputer::getHogDescriptorMat(const char *recognizing_img_pa
     resize(gray, resizedGray, Size(28, 28));
     return Trainer::HogComputer::getHogDescriptorForImage(resizedGray);
 }
+cv::Mat Trainer::HogComputer::getHogDescriptorMat(cv::Mat mat) {
+    Mat gray, resizedGray;
+    cvtColor(mat, gray, cv::COLOR_BGR2GRAY);
+    resize(gray, resizedGray, Size(28, 28));
+    return Trainer::HogComputer::getHogDescriptorForImage(resizedGray);
+}
 
 cv::Mat Trainer::HogComputer::getHogDescriptorForImage(cv::Mat image) {
     cv::HOGDescriptor hog(

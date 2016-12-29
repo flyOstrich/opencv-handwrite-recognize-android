@@ -23,33 +23,19 @@ using namespace cv::ml;
 
 
 extern "C"
-jstring
+jint
 Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
         JNIEnv *env,
         jobject,
-        jstring recognizing_image_path,
-        jobjectArray  recognizing_image_files,
+        jlong jl_recognizing_image,
         jstring  svm_model_path) {
-
-    std::string s_recognizing_image_path=Util::ParamConverter::convertJstringToString(env,recognizing_image_path);
     std::string s_svm_model_path=Util::ParamConverter::convertJstringToString(env,svm_model_path);
-    std::vector<std::string> v_recognizing_image_files=Util::ParamConverter::convertJobjectArrayToVector(env,recognizing_image_files);
-
-
-
+    cv::Mat recognizing_image=*(cv::Mat*)jl_recognizing_image;
     Ptr<SVM> svm= StatModel::load<SVM>( s_svm_model_path.c_str() );
-    LOGD("the predict result is:");
-    while(!v_recognizing_image_files.empty()){
-        std::string recognizing_img_file=v_recognizing_image_files.back();
-        std::string recognizing_img_url=s_recognizing_image_path+"/"+recognizing_img_file;
-        Mat descriptorMat=Trainer::HogComputer::getHogDescriptorMat(recognizing_img_url.c_str());
-        int recognize_result=svm->predict(descriptorMat);
-        LOGD("%s---->%d",recognizing_img_url.c_str(),recognize_result);
-        v_recognizing_image_files.pop_back();
-    }
-
-
-    return env->NewStringUTF("success");
+    Mat descriptorMat=Trainer::HogComputer::getHogDescriptorMat(recognizing_image);
+    int recognize_result=svm->predict(descriptorMat);
+    LOGD("predict result is ----> %d",recognize_result);
+    return recognize_result;
 }
 
 

@@ -16,4 +16,5 @@ out
 build
 .externalNativeBuild
 libs
+handwrite_trained_result.yml
 

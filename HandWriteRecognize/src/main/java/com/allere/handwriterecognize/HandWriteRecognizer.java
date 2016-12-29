@@ -30,7 +30,7 @@ public class HandWriteRecognizer {
     private static final String OPENCV_NOT_LOADED = "opencv is not loaded!";
     private static final String OPENCV_AVALIABLE = "opencv is successfully loaded!";
     private static final String BASE64_STR_CHARACTER = "base64,";
-    private static final String SVM_MODEL_FILE="handwrite_trained_result.yml";
+    public static final String SVM_MODEL_FILE = "handwrite_trained_result.yml";
 
     private Bitmap recognizeImg;
 
@@ -39,41 +39,16 @@ public class HandWriteRecognizer {
         System.loadLibrary("handwrite-recognize-lib");
     }
 
-    public JSONObject recognizeImg(String base64FormatImg, Context activityContext) throws JSONException {
-        JSONObject retObj = new JSONObject();
-        this.setRecognizeImg(this.getBitMapFromBase64Str(base64FormatImg));
-        BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(activityContext) {
-            @Override
-            public void onManagerConnected(int status) {
-                switch (status) {
-                    case LoaderCallbackInterface.SUCCESS: {
-                        Log.i(TAG, OPENCV_AVALIABLE);
-                        Mat mat = new Mat(getRecognizeImg().getHeight(), getRecognizeImg().getWidth(), CvType.CV_8UC3);
-                        bitmapToMat(recognizeImg, mat);
-//                        recognize(mat.getNativeObjAddr(),getRecognizeImg().getHeight(),getRecognizeImg().getWidth());
-                    }
-                    break;
-                    default: {
-                        super.onManagerConnected(status);
-                    }
-                    break;
-                }
-            }
-        };
-        if (!OpenCVLoader.initDebug()) {
-            Log.d(TAG, OPENCV_NOT_LOADED);
-            retObj.put(RETURN_MESSAGE_KEY, OPENCV_NOT_LOADED);
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, activityContext, mLoaderCallback);
-        } else {
-            Log.d(TAG, OPENCV_AVALIABLE);
-            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-        }
-        return retObj;
+    public int recognizeBase64FormatImg(String base64FormatImg,Context activityContext)  {
+        Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatImg);
+        Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
+        bitmapToMat(bitmapImg, mat);
+        return this.recognize(mat.getNativeObjAddr(),HandWriteRecognizer.getSvmModelFilePath(activityContext));
     }
 
-    public String getSvmModelFilePath(Context activityContext){
-        String filesDir= activityContext.getExternalFilesDir("files").getAbsolutePath();
-        return filesDir+"/"+SVM_MODEL_FILE;
+    public static String getSvmModelFilePath(Context activityContext) {
+        String filesDir = activityContext.getFilesDir().getAbsolutePath();
+        return filesDir + "/" + SVM_MODEL_FILE;
     }
 
     private Bitmap getBitMapFromBase64Str(String base64Str) {
@@ -85,15 +60,10 @@ public class HandWriteRecognizer {
     }
 
 
-    public Bitmap getRecognizeImg() {
-        return recognizeImg;
-    }
 
-    public void setRecognizeImg(Bitmap recognizeImg) {
-        this.recognizeImg = recognizeImg;
-    }
+    public native int recognize(long imgAddress, String svm_model_path);
 
-    public native String recognize(String recognize_img_dir,String[] recognizing_img_files,String svm_model_path);
-    public native String train(String[] images,String dir,String svm_model_path);
-    public native String trainFromMat(Mat[] matList,int[] labels,String svm_model_path);
+    public native String train(String[] images, String dir, String svm_model_path);
+
+    public native String trainFromMat(Mat[] matList, int[] labels, String svm_model_path);
 }

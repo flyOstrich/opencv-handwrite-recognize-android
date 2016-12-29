@@ -4,9 +4,11 @@ app.controller('mainCtrl', function () {
     this.height=window.innerHeight;
     this.eventDelegate=$({});
     this.options={
-        width:this.width,
-        height:this.height,
-        color:"black"
+        width:28*10,
+        height:28*10,
+        backgroundColor: 'black',
+        lineWidth: 15, //px
+        color: 'white',
     };
     this.version = 0;
     this.timer=null;
@@ -32,10 +34,14 @@ app.controller('mainCtrl', function () {
     this.reg=function(){
        var url = document.querySelector('#pwCanvasMain').toDataURL();
                   handwrite.recognize(url, function () {
-                      console.log(arguments);
+                      document.querySelector('#res').innerHTML="识别结果："+arguments[0].recognizeResult
+                      console.log(arguments[0].recognizeResult);
                   }, function () {
                       console.log(arguments);
        })
+    }
+    this.refresh=function(){
+       window.location.reload();
     }
 });
 app.run(function ($window) {
