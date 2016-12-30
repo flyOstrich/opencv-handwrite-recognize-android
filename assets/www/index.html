@@ -15,13 +15,19 @@
         <div pw-canvas options="ctrl.options"
              version="ctrl.version"
              event-delegate="ctrl.eventDelegate"></div>
-        <button ng-click="ctrl.reg()" style="position:fixed;bottom:10px;left:35%">
+        <button ng-click="ctrl.showImageList()" style="position:fixed;top:10px;left:30%">
+              showImageList
+        </button>
+        <button ng-click="ctrl.reg()" style="position:fixed;bottom:10px;left:30%">
               recognize
         </button>
-        <button ng-click="ctrl.refresh()" style="position:fixed;bottom:10px;left:55%">
+        <button ng-click="ctrl.refresh()" style="position:fixed;bottom:10px;left:60%">
               refresh
         </button>
-        <div id="res" style="position:fixed;bottom:50px;left:25%;color:white;">
+        <div ng-repeat="img in ctrl.imgList">
+            <img ng-src="{{img}}"/>
+        </div>
+        <div id="res" style="position:fixed;bottom:50px;left:25%;color:black;">
 
         </div>
 </body>

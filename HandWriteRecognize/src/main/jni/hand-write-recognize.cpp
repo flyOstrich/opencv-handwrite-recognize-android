@@ -1,9 +1,10 @@
 #include <jni.h>
 #include <string>
-#include "include/trainer.h"
-#include "include/log.h"
-#include "include/utils.h"
-
+#include "trainer.h"
+#include "log.h"
+#include "param-util.h"
+#include "image-util.h"
+#include <opencv2/ximgproc.hpp>
 //#include <android/asset_manager.h>
 //#include <android/asset_manager_jni.h>
 
@@ -78,6 +79,25 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_trainFromMat(
     hogComputer.trainSvm(train_data,trained_result_location);
     LOGD("train file location--->%s",trained_result_location.c_str());
     return env->NewStringUTF("success");
+}
+
+extern "C"
+void
+Java_com_allere_handwriterecognize_HandWriteRecognizer_testImageOperate(
+        JNIEnv *env,
+        jobject,
+        jlong mat_address,
+        jstring  img_save_location) {
+    cv::Mat gray,resizedGray;
+    cv::Mat img_mat=*(cv::Mat*)mat_address;
+    std::string s_img_save_location=Util::ParamConverter::convertJstringToString(env,img_save_location);
+    cvtColor(img_mat, gray, cv::COLOR_BGR2GRAY);
+    resize(gray, resizedGray, Size(28, 28));
+    cv::Mat res(cv::Size(28,28),CV_32FC1);
+//    Util::ImageConverter::thin(resizedGray,res,1);
+//    cv::ximgproc::thinning(resizedGray,res);
+    LOGD("img save location ---->%s",s_img_save_location.c_str());
+    imwrite(s_img_save_location.c_str(),res);
 }
 
 

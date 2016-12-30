@@ -32,12 +32,11 @@ public class HandWriteRecognizer {
     private static final String BASE64_STR_CHARACTER = "base64,";
     public static final String SVM_MODEL_FILE = "handwrite_trained_result.yml";
 
-    private Bitmap recognizeImg;
-
-
     static {
         System.loadLibrary("handwrite-recognize-lib");
     }
+
+
 
     public int recognizeBase64FormatImg(String base64FormatImg,Context activityContext)  {
         Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatImg);
@@ -66,4 +65,6 @@ public class HandWriteRecognizer {
     public native String train(String[] images, String dir, String svm_model_path);
 
     public native String trainFromMat(Mat[] matList, int[] labels, String svm_model_path);
+
+    public native void testImageOperate(long matAddress,String imageSaveAddress);
 }

@@ -15,6 +15,10 @@ HandWrite.prototype.recognize = function(imgBase64,successCallback, errorCallbac
 //    argscheck.checkArgs('fF', 'HandWrite.getInfo', arguments);
     exec(successCallback, errorCallback, "HandWrite", "getHandWriteInfo", [imgBase64]);
 };
+HandWrite.prototype.showImageList = function(successCallback, errorCallback) {
+//    argscheck.checkArgs('fF', 'HandWrite.getInfo', arguments);
+    exec(successCallback, errorCallback, "HandWrite", "showImageList",[]);
+};
 
 module.exports = new HandWrite();
 

@@ -1,5 +1,5 @@
 var app = angular.module('app', ['pw.canvas-painter']);
-app.controller('mainCtrl', function () {
+app.controller('mainCtrl', function ($scope) {
     this.width=window.innerWidth;
     this.height=window.innerHeight;
     this.eventDelegate=$({});
@@ -42,6 +42,17 @@ app.controller('mainCtrl', function () {
     }
     this.refresh=function(){
        window.location.reload();
+    }
+    this.imgList=[];
+    this.showImageList=function(){
+       var me=this;
+       handwrite.showImageList(function(res){
+          $scope.$apply(function(){
+              me.imgList=res.list;
+          })
+       },function(){
+          console.log(arguments)
+       })
     }
 });
 app.run(function ($window) {

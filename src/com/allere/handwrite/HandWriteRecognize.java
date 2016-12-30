@@ -12,7 +12,9 @@ import com.allere.handwriterecognize.FileOperator;
 import com.allere.handwriterecognize.HandWriteRecognizer;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,8 +37,21 @@ import static org.opencv.android.Utils.bitmapToMat;
 
 public class HandWriteRecognize extends CordovaPlugin {
 
-
+    private static  final  String TAG="HWRPlugin";
     private HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
+
+    @Override
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        super.initialize(cordova, webView);
+        if (!OpenCVLoader.initDebug()) {
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this.cordova.getActivity(), new BaseLoaderCallback(this.cordova.getActivity()) {
+                @Override
+                public void onManagerConnected(int status) {
+                    super.onManagerConnected(status);
+                }
+            });
+        }
+    }
 
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         final Context ctx=this.cordova.getActivity();
@@ -79,7 +94,28 @@ public class HandWriteRecognize extends CordovaPlugin {
                 r.put("status", "true");
                 callbackContext.success(r);
             }
-        } else {
+        } else if ("showImageList".equals(action)) {
+            FileOperator optr=new FileOperator(this.cordova.getActivity());
+            Context activity=this.cordova.getActivity();
+            JSONObject result = new JSONObject();
+            try {
+                Mat imgMat=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/0_1.bmp"));
+                optr.createFilesDir(FileOperator.DEBUG_IMAGES);
+                handWriteRecognizer.testImageOperate(imgMat.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/0_1.bmp");
+                String[] files= optr.getFilesDirFileNames(FileOperator.DEBUG_IMAGES,true);
+                JSONArray ary=new JSONArray();
+                for(int i=0;i<files.length;i++){
+                    ary.put(files[i]);
+                }
+                result.put("list",ary);
+                callbackContext.success(result);
+            } catch (Exception e) {
+                result.put("message",e.getMessage());
+                callbackContext.error(result);
+                Log.e(TAG,e.getMessage());
+                e.printStackTrace();
+            }
+        }else{
             return false;
         }
         return true;

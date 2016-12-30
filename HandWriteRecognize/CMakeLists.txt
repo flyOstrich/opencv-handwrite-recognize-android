@@ -4,14 +4,14 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 set(OpenCV_DIR D:\\android\\OpenCV-android-sdk\\sdk\\native\\jni)
-
+set(OPENCV_EXTRA_MODULES_PATH D:\\android\\opencv_contrib-master\\modules)
 find_package(OpenCV REQUIRED)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds it for you.
 # Gradle automatically packages shared libraries with your APK.
-
+INCLUDE_DIRECTORIES("src/main/jni/include" "D:\\android\\opencv_contrib-master\\modules\\ximgproc\\include")
 add_library( # Sets the name of the library.
              handwrite-recognize-lib
 
@@ -23,7 +23,8 @@ add_library( # Sets the name of the library.
              # file are automatically included.
              src/main/jni/hand-write-recognize.cpp
              src/main/jni/trainer.cpp
-             src/main/jni/utils.cpp)
+             src/main/jni/image-util.cpp
+             src/main/jni/param-util.cpp)
 
 
 
