@@ -99,9 +99,27 @@ public class HandWriteRecognize extends CordovaPlugin {
             Context activity=this.cordova.getActivity();
             JSONObject result = new JSONObject();
             try {
-                Mat imgMat=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/0_1.bmp"));
+                Mat imgMat=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+ "/0_10.bmp"));
+                Mat imgMat1=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/1_10.bmp"));
+                Mat imgMat2=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/2_10.bmp"));
+                Mat imgMat3=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/3_10.bmp"));
+                Mat imgMat4=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/4_10.bmp"));
+                Mat imgMat5=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/5_10.bmp"));
+                Mat imgMat6=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/6_10.bmp"));
+                Mat imgMat7=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/7_10.bmp"));
+                Mat imgMat8=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/8_10.bmp"));
+                Mat imgMat9=optr.convertImg2Mat(activity.getAssets().open(FileOperator.TRAIN_IMAGES_DIR+"/9_10.bmp"));
                 optr.createFilesDir(FileOperator.DEBUG_IMAGES);
                 handWriteRecognizer.testImageOperate(imgMat.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/0_1.bmp");
+                handWriteRecognizer.testImageOperate(imgMat1.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/1_1.bmp");
+                handWriteRecognizer.testImageOperate(imgMat2.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/2_1.bmp");
+                handWriteRecognizer.testImageOperate(imgMat3.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/3_1.bmp");
+                handWriteRecognizer.testImageOperate(imgMat4.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/4_1.bmp");
+                handWriteRecognizer.testImageOperate(imgMat5.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/5_1.bmp");
+                handWriteRecognizer.testImageOperate(imgMat6.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/6_1.bmp");
+                handWriteRecognizer.testImageOperate(imgMat7.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/7_1.bmp");
+                handWriteRecognizer.testImageOperate(imgMat8.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/8_1.bmp");
+                handWriteRecognizer.testImageOperate(imgMat9.getNativeObjAddr(),activity.getFilesDir().getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/9_1.bmp");
                 String[] files= optr.getFilesDirFileNames(FileOperator.DEBUG_IMAGES,true);
                 JSONArray ary=new JSONArray();
                 for(int i=0;i<files.length;i++){

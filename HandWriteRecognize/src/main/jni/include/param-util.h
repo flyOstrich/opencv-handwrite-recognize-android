@@ -5,6 +5,7 @@
 #include <jni.h>
 #include <cv.h>
 #include <list>
+#include <opencv2/opencv.hpp>
 
 namespace Util {
     class ParamConverter{

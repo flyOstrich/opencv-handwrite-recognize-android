@@ -55,7 +55,7 @@ public class FileOperatorTest {
                             FileOperator operator = new FileOperator(appContext);
                             Mat imgMat=operator.convertImg2Mat(imgFileInputStream);
                             HandWriteRecognizer handWriteRecognizer=new HandWriteRecognizer();
-                            handWriteRecognizer.testImageOperate(imgMat.getNativeObjAddr(),appContext.getFilesDir()+"/"+FileOperator.DEBUG_IMAGES+"/0_1.bmp");
+                            handWriteRecognizer.testImageOperate(imgMat.getNativeObjAddr(),appContext.getExternalFilesDir("").getAbsolutePath()+"/"+FileOperator.DEBUG_IMAGES+"/0_1.bmp");
                             Assert.assertEquals(imgMat.rows(),28);
                         } catch (IOException e) {
                             e.printStackTrace();
