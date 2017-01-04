@@ -45,7 +45,7 @@ std::pair<cv::Mat, cv::Mat>  Trainer::HogComputer::convertGradientToMlFormat(
 
 void Trainer::HogComputer::trainSvm(std::pair<cv::Mat, cv::Mat> train_data,
                                     std::string trained_result_location) {
-
+    LOGD("method trainSvm");
     cv::Ptr<cv::ml::SVM> svm = cv::ml::SVM::create();
     cv::Mat train_data_mat = train_data.second;
     cv::Mat train_data_labels = train_data.first;
@@ -55,9 +55,9 @@ void Trainer::HogComputer::trainSvm(std::pair<cv::Mat, cv::Mat> train_data,
     svm->setType(
             cv::ml::SVM::C_SVC); // C_SVC; // EPSILON_SVR; // may be also NU_SVR; // do regression task
     svm->train(train_data_mat, cv::ml::ROW_SAMPLE, train_data_labels);
+    LOGD("method trainSvm save %s",trained_result_location.c_str());
     svm->save(trained_result_location);
     int p;
-
     for (int i = 0; i < train_data_labels.rows; i++) {
         cv::Mat test_row = train_data_mat.row(i);
         p = svm->predict(test_row);

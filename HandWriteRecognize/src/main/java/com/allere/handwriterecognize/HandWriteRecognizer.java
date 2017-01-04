@@ -16,6 +16,8 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.List;
 
 import static org.opencv.android.Utils.bitmapToMat;
@@ -42,7 +44,23 @@ public class HandWriteRecognizer {
         Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatImg);
         Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
         bitmapToMat(bitmapImg, mat);
-        return this.recognize(mat.getNativeObjAddr(),HandWriteRecognizer.getSvmModelFilePath(activityContext));
+        return this.recognize(mat.getNativeObjAddr(),activityContext.getExternalFilesDir("")+"/"+HandWriteRecognizer.SVM_MODEL_FILE);
+    }
+
+    public void setBase64FormatTrainImg(final String trainVal, String base64FormatTrainImg, Context activityContext, String savePath){
+        Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatTrainImg);
+        Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
+        bitmapToMat(bitmapImg, mat);
+        File dir=new File(savePath);
+        if(!dir.exists())dir.mkdir();
+        int existLen=dir.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File file, String s) {
+                return s.startsWith(trainVal);
+            }
+        }).length;
+        String fileName=trainVal+"_"+(existLen+1)+".bmp";
+        this.saveTrainImage(mat.getNativeObjAddr(),savePath+"/"+fileName);
     }
 
     public static String getSvmModelFilePath(Context activityContext) {
@@ -67,4 +85,6 @@ public class HandWriteRecognizer {
     public native String trainFromMat(Mat[] matList, int[] labels, String svm_model_path);
 
     public native void testImageOperate(long matAddress,String imageSaveAddress);
+
+    public native void saveTrainImage(long matAddress,String imageSaveAddress);
 }

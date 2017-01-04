@@ -31,6 +31,7 @@ public class FileOperator {
     public static final String TEST_IMAGES_DIR = "testImages"; //测试识别图片的目录
     public static final String SVM_MODEL_FILE_DIR = "svm-model";//svm model目录
     public static final String DEBUG_IMAGES = "debug-images";//测试图片目录
+
     private Context ctx = null;
 
     public FileOperator(Context context) {
@@ -198,6 +199,8 @@ public class FileOperator {
     public String getDataImageDir(String fileDir) {
         return this.getCtx().getFilesDir().getAbsolutePath() + "/" + fileDir;
     }
+
+
 
     public Context getCtx() {
         return ctx;

@@ -44,6 +44,16 @@ void Util::ImageConverter::removeEmptySpace(cv::Mat &src, cv::Mat dst) {
         }
     }
     cv::Mat cutImg(cv::Size(bottom-top,right-left),CV_8UC1);
+
+    if(bottom-top<28){
+        bottom+14>src.rows? bottom=src.rows:bottom+=14;
+        top-14<0?top=0:top-=14;
+    }
+    if(right-left<28){
+        left-14<0?left=0:left-=14;
+        right+14>src.cols?right=src.cols:right+=14;
+    }
+
     cv::Mat temp=src.rowRange(top,bottom).colRange(left,right);
     temp.copyTo(cutImg);
     LOGD("top->%d , bottom->%d ,left->%d,right->%d",top,bottom,left,right);

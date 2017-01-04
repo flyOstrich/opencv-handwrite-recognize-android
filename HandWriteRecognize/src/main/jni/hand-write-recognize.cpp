@@ -76,14 +76,21 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_trainFromMat(
         jintArray labels,
         jstring svm_model_path) {
     Trainer::HogComputer hogComputer;
+    LOGD("method trainFromMat");
     std::list<std::pair<int, cv::Mat> > imgList = Util::ParamConverter::convertJobjectArrayToMatVector(
             env, matList, labels);
+    LOGD("method imgList");
     std::string trained_result_location = Util::ParamConverter::convertJstringToString(env,
                                                                                        svm_model_path);
+    LOGD("method trained_result_location");
+
     std::list<std::pair<int, cv::Mat> > gradient_list = Trainer::HogComputer::getGradientList(
             imgList);
+    LOGD("method gradient_list");
+
     std::pair<cv::Mat, cv::Mat> train_data = Trainer::HogComputer::convertGradientToMlFormat(
             gradient_list);
+    LOGD("method train_data");
     hogComputer.trainSvm(train_data, trained_result_location);
     LOGD("train file location--->%s", trained_result_location.c_str());
     return env->NewStringUTF("success");
@@ -112,6 +119,38 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_testImageOperate(
     LOGD("img save location ---->%s", s_img_save_location.c_str());
     imwrite(s_img_save_location.c_str(), thinRes);
 }
+
+
+//保存训练图片
+extern "C"
+void
+Java_com_allere_handwriterecognize_HandWriteRecognizer_saveTrainImage(
+        JNIEnv *env,
+        jobject,
+        jlong mat_address,
+        jstring img_save_location) {
+    cv::Mat gray;
+    cv::Mat img_mat = *(cv::Mat *) mat_address;
+    std::string s_img_save_location = Util::ParamConverter::convertJstringToString(env,
+                                                                                   img_save_location);
+    LOGD("img rows--->%d,img cols--->%d",img_mat.rows,img_mat.cols);
+    cvtColor(img_mat, gray, cv::COLOR_BGR2GRAY);
+    cv::Mat swap(cv::Size(gray.cols, gray.rows), CV_8UC1);
+    Util::ImageConverter::swapBgAndFgColor(gray, swap, Util::ImageConverter::COLOR_BLACK);
+    LOGD("swap img rows--->%d,img cols--->%d",swap.rows,swap.cols);
+    cv::Size size(100,200);
+    LOGD("size height--->%d,size width--->%d",size.height,size.width);
+
+    cv::Mat cutRes(cv::Size(28,28),CV_8UC1);
+    Util::ImageConverter::removeEmptySpace(swap, cutRes);
+    cv::Mat thinRes(cv::Size(cutRes.cols,cutRes.rows),CV_8UC1);
+    Util::ImageConverter::thinning(cutRes,thinRes);
+    LOGD("img save location ---->%s", s_img_save_location.c_str());
+    imwrite(s_img_save_location.c_str(), thinRes);
+}
+
+
+
 
 
 

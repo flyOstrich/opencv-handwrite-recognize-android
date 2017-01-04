@@ -1,4 +1,4 @@
-var app = angular.module('app', ['pw.canvas-painter']);
+var app = angular.module('app', ['pw.canvas-painter','ui.router']);
 app.controller('mainCtrl', function ($scope) {
     this.width=window.innerWidth;
     this.height=window.innerHeight;
