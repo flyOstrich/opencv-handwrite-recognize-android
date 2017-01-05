@@ -44,7 +44,8 @@ public class HandWriteRecognizer {
         Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatImg);
         Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
         bitmapToMat(bitmapImg, mat);
-        return this.recognize(mat.getNativeObjAddr(),activityContext.getExternalFilesDir("")+"/"+HandWriteRecognizer.SVM_MODEL_FILE);
+//        return this.recognize(mat.getNativeObjAddr(),activityContext.getExternalFilesDir("")+"/"+HandWriteRecognizer.SVM_MODEL_FILE);
+        return this.recognize(mat.getNativeObjAddr(),HandWriteRecognizer.getSvmModelFilePath(activityContext));
     }
 
     public void setBase64FormatTrainImg(final String trainVal, String base64FormatTrainImg, Context activityContext, String savePath){

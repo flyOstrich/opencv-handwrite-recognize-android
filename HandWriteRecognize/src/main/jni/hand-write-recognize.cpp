@@ -32,8 +32,23 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
     std::string s_svm_model_path = Util::ParamConverter::convertJstringToString(env,
                                                                                 svm_model_path);
     cv::Mat recognizing_image = *(cv::Mat *) jl_recognizing_image;
+    //将图片灰度化
+    cv::Mat gray(cv::Size(recognizing_image.cols,recognizing_image.rows),CV_8UC1);
+    cvtColor(recognizing_image, gray, cv::COLOR_BGR2GRAY);
+    //改变背景色
+    cv::Mat swap(cv::Size(gray.cols, gray.rows), CV_8UC1);
+    Util::ImageConverter::swapBgAndFgColor(gray, swap, Util::ImageConverter::COLOR_BLACK);
+    //截切图片空白部分
+    cv::Mat cutRes(cv::Size(28,28),CV_8UC1);
+    Util::ImageConverter::removeEmptySpace(swap, cutRes);
+    LOGD("cutimg result rows-->%d,cols-->%d",cutRes.rows,cutRes.cols);
+    //提取图片骨架
+    cv::Mat thinRes(cv::Size(cutRes.cols,cutRes.rows),CV_8UC1);
+    Util::ImageConverter::thinning(cutRes,thinRes);
+    LOGD("thinning result rows-->%d,cols-->%d",thinRes.rows,thinRes.cols);
+    //识别
     Ptr<SVM> svm = StatModel::load<SVM>(s_svm_model_path.c_str());
-    Mat descriptorMat = Trainer::HogComputer::getHogDescriptorMat(recognizing_image);
+    Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(thinRes);
     int recognize_result = svm->predict(descriptorMat);
     LOGD("predict result is ----> %d", recognize_result);
     return recognize_result;
