@@ -37,6 +37,13 @@ cordova.define("cordova-plugin-handwrite.handwrite", function (require, exports,
         exec(successCallback, errorCallback, "HandWrite", "trainFromTrainImages",[]);
     };
 
+     HandWrite.prototype.getLabelCharacterMap = function (successCallback, errorCallback) {
+            //    argscheck.checkArgs('fF', 'HandWrite.getInfo', arguments);
+            exec(successCallback, errorCallback, "HandWrite", "getLabelCharacterMap",[]);
+     };
+
+
+
     module.exports = new HandWrite();
 
 });

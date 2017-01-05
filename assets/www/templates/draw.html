@@ -12,8 +12,12 @@
     <div pw-canvas options="ctrl.options"
          version="ctrl.version"
          event-delegate="ctrl.eventDelegate"></div>
+    <div style="position:absolute;left:5px;bottom:5px;">
+        <select class="form-control" style="display:inline-block;" ng-model="ctrl.selectedLabelCharacterMap"
+                ng-options="x.character for x in ctrl.labelCharacterList"></select>
+    </div>
     <div style="position: absolute;right: 5px;bottom: 5px;">
-        <input type="number" maxlength="1" minlength="1" ng-model="ctrl.trainVal">
+        <!--<input type="number" maxlength="1" minlength="1" ng-model="ctrl.trainVal">-->
         <div class="btn-group">
             <button type="button" class="btn btn-small btn-default" ng-click="ctrl.saveImg()">加入训练集</button>
             <button type="button" class="btn btn-small btn-default" ng-click="ctrl.clear()">清除</button>
@@ -22,7 +26,8 @@
 </div>
 <div class="list-area">
      <span ng-repeat="img in ctrl.imageList">
-         <div class="btn btn-small" ng-click="ctrl.deleteTrainImage(img)"><i class="glyphicon glyphicon-remove"></i></div>
-         <img ng-src="{{ctrl.getImgUrl(img)}}" style="width:56px;height:56px;margin:2px;"/>
+         <div class="btn btn-small" ng-click="ctrl.deleteTrainImage(img)"><i
+                 class="glyphicon glyphicon-remove"></i></div>
+         <img ng-src="{{img}}" style="width:56px;height:56px;margin:2px;"/>
      </span>
 </div>

@@ -4,23 +4,9 @@
 #include "log.h"
 #include "param-util.h"
 #include "image-util.h"
-//#include <android/asset_manager.h>
-//#include <android/asset_manager_jni.h>
-
-
-
 
 using namespace cv;
 using namespace cv::ml;
-
-//    AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
-//    AAsset* asset = AAssetManager_open(mgr, filename,AASSET_MODE_UNKNOWN);
-//    off_t bufferSize = AAsset_getLength(asset);
-//    char *buffer=(char *)malloc(bufferSize+1);
-//    buffer[bufferSize]=0;
-//    int numBytesRead = AAsset_read(asset, buffer, bufferSize);
-
-
 
 extern "C"
 jint
@@ -35,17 +21,25 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
     //将图片灰度化
     cv::Mat gray(cv::Size(recognizing_image.cols,recognizing_image.rows),CV_8UC1);
     cvtColor(recognizing_image, gray, cv::COLOR_BGR2GRAY);
+    LOGD("将图片灰度化(width:%d,height:%d)",gray.cols,gray.rows);
     //改变背景色
-    cv::Mat swap(cv::Size(gray.cols, gray.rows), CV_8UC1);
-    Util::ImageConverter::swapBgAndFgColor(gray, swap, Util::ImageConverter::COLOR_BLACK);
+    int color=Util::ImageConverter::COLOR_WHITE;
+    cv::Mat swap=Util::ImageConverter::swapBgAndFgColor(gray, color);
+    LOGD("改变背景色(width:%d,height:%d，color:%d)",swap.cols,swap.rows,color);
     //截切图片空白部分
-    cv::Mat cutRes(cv::Size(28,28),CV_8UC1);
-    Util::ImageConverter::removeEmptySpace(swap, cutRes);
-    LOGD("cutimg result rows-->%d,cols-->%d",cutRes.rows,cutRes.cols);
+//    cv::Mat noEmptyRes=Util::ImageConverter::removeEmptySpace(swap);
+//    LOGD("截切图片空白部分(width:%d,height:%d)",noEmptyRes.cols,noEmptyRes.rows);
+    //获取图片中的每个字的子区域图片
+    std::list<std::list<cv::Mat> > characterImageMatrix=Util::ImageConverter::cutImage(swap);
+    LOGD("获取图片中的每个字的子区域图片 row:%d",characterImageMatrix.size());
+    //缩放图片
+    cv::Mat resizedRes=Util::ImageConverter::resize(swap,cv::Size(28,28));
+    LOGD("缩放图片(width:%d,height:%d)",resizedRes.cols,resizedRes.rows);
     //提取图片骨架
-    cv::Mat thinRes(cv::Size(cutRes.cols,cutRes.rows),CV_8UC1);
-    Util::ImageConverter::thinning(cutRes,thinRes);
-    LOGD("thinning result rows-->%d,cols-->%d",thinRes.rows,thinRes.cols);
+    cv::Mat thinRes=Util::ImageConverter::thinning(resizedRes);
+    LOGD("提取图片骨架(width:%d,height:%d)",thinRes.cols,thinRes.rows);
+    Util::ImageConverter::printMatrix(thinRes);
+
     //识别
     Ptr<SVM> svm = StatModel::load<SVM>(s_svm_model_path.c_str());
     Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(thinRes);
@@ -124,15 +118,14 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_testImageOperate(
                                                                                    img_save_location);
     cvtColor(img_mat, gray, cv::COLOR_BGR2GRAY);
     cv::Mat swap(cv::Size(gray.rows, gray.cols), CV_8UC1);
-    Util::ImageConverter::swapBgAndFgColor(gray, swap, Util::ImageConverter::COLOR_BLACK);
-    cv::Mat cutRes(cv::Size(28,28),CV_8UC1);
-    Util::ImageConverter::removeEmptySpace(swap, cutRes);
-    cv::Mat thinRes(cv::Size(cutRes.rows,cutRes.cols),CV_8UC1);
-    Util::ImageConverter::thinning(cutRes,thinRes);
+//    Util::ImageConverter::swapBgAndFgColor(gray, swap, Util::ImageConverter::COLOR_BLACK);
+    cv::Mat noEmptyRes=Util::ImageConverter::removeEmptySpace(swap);
+    cv::Mat resizeRes=Util::ImageConverter::resize(noEmptyRes,cv::Size(28,28));
+//    Util::ImageConverter::thinning(cutRes,thinRes);
 
 
     LOGD("img save location ---->%s", s_img_save_location.c_str());
-    imwrite(s_img_save_location.c_str(), thinRes);
+//    imwrite(s_img_save_location.c_str(), thinRes);
 }
 
 
@@ -144,22 +137,22 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_saveTrainImage(
         jobject,
         jlong mat_address,
         jstring img_save_location) {
+    LOGD("Java_com_allere_handwriterecognize_HandWriteRecognizer_saveTrainImage");
     cv::Mat gray;
     cv::Mat img_mat = *(cv::Mat *) mat_address;
     std::string s_img_save_location = Util::ParamConverter::convertJstringToString(env,
                                                                                    img_save_location);
-    LOGD("img rows--->%d,img cols--->%d",img_mat.rows,img_mat.cols);
+    LOGD("Train Image Origin:img rows--->%d,img cols--->%d",img_mat.rows,img_mat.cols);
     cvtColor(img_mat, gray, cv::COLOR_BGR2GRAY);
-    cv::Mat swap(cv::Size(gray.cols, gray.rows), CV_8UC1);
-    Util::ImageConverter::swapBgAndFgColor(gray, swap, Util::ImageConverter::COLOR_BLACK);
-    LOGD("swap img rows--->%d,img cols--->%d",swap.rows,swap.cols);
-    cv::Size size(100,200);
-    LOGD("size height--->%d,size width--->%d",size.height,size.width);
-
-    cv::Mat cutRes(cv::Size(28,28),CV_8UC1);
-    Util::ImageConverter::removeEmptySpace(swap, cutRes);
-    cv::Mat thinRes(cv::Size(cutRes.cols,cutRes.rows),CV_8UC1);
-    Util::ImageConverter::thinning(cutRes,thinRes);
+    LOGD("Gray Image Matrix:");
+    Util::ImageConverter::printMatrix(gray);
+    LOGD("Gray Image :img rows--->%d,img cols--->%d",gray.rows,gray.cols);
+    cv::Mat swap=Util::ImageConverter::swapBgAndFgColor(gray, Util::ImageConverter::COLOR_BLACK);
+    LOGD("Swap Image : rows--->%d,img cols--->%d",swap.rows,swap.cols);
+    cv::Mat noEmptyRes=Util::ImageConverter::removeEmptySpace(swap);
+    LOGD("Cut Image : rows--->%d,img cols--->%d",noEmptyRes.rows,noEmptyRes.cols);
+    cv::Mat resizedRes=Util::ImageConverter::resize(noEmptyRes,cv::Size(28,28));
+    cv::Mat thinRes=Util::ImageConverter::thinning(resizedRes);
     LOGD("img save location ---->%s", s_img_save_location.c_str());
     imwrite(s_img_save_location.c_str(), thinRes);
 }

@@ -11,7 +11,7 @@
 <div class="btn btn-primary" ng-click="ctrl.startTrain()">开始训练</div>
 <div ng-if="ctrl.svmPath" style="word-break:break-all;">{{ctrl.svmPath}}</div>
 <div class="list-area">
-     <span ng-repeat="img in ctrl.imageList">
+     <span ng-repeat="img in ctrl.imageList track by $index">
          <img ng-src="{{ctrl.getImgUrl(img)}}" style="width:56px;height:56px;margin:2px;"/>
      </span>
 </div>

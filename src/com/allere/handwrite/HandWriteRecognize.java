@@ -26,6 +26,8 @@ import org.opencv.core.Mat;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -148,9 +150,14 @@ public class HandWriteRecognize extends CordovaPlugin {
         }else if("trainFromTrainImages".equals(action)){
             JSONObject obj = this.trainFromTrainImages();
             callbackContext.success(obj);
+        }else if("getLabelCharacterMap".equals(action)){
+            JSONObject obj = this.getLabelCharacterMap();
+            callbackContext.success(obj);
         }else {
             return false;
         }
+
+
         return true;
     }
 
@@ -248,6 +255,56 @@ public class HandWriteRecognize extends CordovaPlugin {
         return rt;
     }
 
+    public JSONObject getLabelCharacterMap() throws JSONException{
+        JSONObject obj=new JSONObject();
+        JSONArray mapList =new JSONArray();
+        String errorMsg;
+
+        try {
+            InputStream fileLabelCharacterMap =this.getActivity().getAssets().open(handWriteRecognizer.LABEL_CHARACTER_ASSET_LOCATION);
+            byte[] buffer=new byte[fileLabelCharacterMap.available()];
+            fileLabelCharacterMap.read(buffer);
+            String mapStr=new String(buffer);
+            mapStr=mapStr.replace("\r","");
+            String[] mapItemList=mapStr.split("\n");
+            //数字与文字的map长度应该大于2
+            if(mapItemList.length<2){
+                errorMsg="parseError:label character map length should > 2";
+                obj.put("errorMsg",errorMsg);
+                Log.e(TAG,errorMsg);
+                return obj;
+            }
+            for(int i=0;i<mapItemList.length;i++){
+                String mapItem=mapItemList[i];
+                String[] map=mapItem.split(":");
+                if(map.length!=2){
+                    errorMsg="parseError:label character map ";
+                    obj.put("errorMsg",errorMsg);
+                    Log.e(TAG,errorMsg);
+                    return  obj;
+                }
+                try{
+                   Integer.parseInt(map[0]);
+                }catch (Exception e){
+                    errorMsg="parserError:label should be Integer,got "+map[0];
+                    obj.put("errorMsg",errorMsg);
+                    Log.e(TAG,errorMsg);
+                    return obj;
+                }
+                JSONObject mapJSONItem=new JSONObject();
+                mapJSONItem.put("label",map[0]);
+                mapJSONItem.put("character",map[1]);
+                mapList.put(mapJSONItem);
+            }
+            obj.put("labelCharacterList",mapList);
+        } catch (IOException e) {
+            Log.d(TAG,e.getMessage());
+            e.printStackTrace();
+            obj.put("errorMsg",e.getMessage());
+        }
+        return obj;
+    }
+
     public void toDebugActivity(String base64Str) {
         Intent intent = new Intent();
         intent.setClass(this.cordova.getActivity(), Main2Activity.class);
@@ -255,6 +312,10 @@ public class HandWriteRecognize extends CordovaPlugin {
         bundle.putString("imgData", base64Str);
         intent.putExtras(bundle);
         this.cordova.getActivity().startActivity(intent);
+    }
+
+    public Context getActivity(){
+        return this.cordova.getActivity();
     }
 
 

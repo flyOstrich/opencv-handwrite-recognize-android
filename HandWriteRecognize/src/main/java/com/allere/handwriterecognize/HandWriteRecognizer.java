@@ -33,6 +33,7 @@ public class HandWriteRecognizer {
     private static final String OPENCV_AVALIABLE = "opencv is successfully loaded!";
     private static final String BASE64_STR_CHARACTER = "base64,";
     public static final String SVM_MODEL_FILE = "handwrite_trained_result.yml";
+    public final String LABEL_CHARACTER_ASSET_LOCATION="svm-model/label_character_map.txt";
 
     static {
         System.loadLibrary("handwrite-recognize-lib");
@@ -44,8 +45,8 @@ public class HandWriteRecognizer {
         Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatImg);
         Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
         bitmapToMat(bitmapImg, mat);
-//        return this.recognize(mat.getNativeObjAddr(),activityContext.getExternalFilesDir("")+"/"+HandWriteRecognizer.SVM_MODEL_FILE);
-        return this.recognize(mat.getNativeObjAddr(),HandWriteRecognizer.getSvmModelFilePath(activityContext));
+        return this.recognize(mat.getNativeObjAddr(),activityContext.getExternalFilesDir("")+"/"+HandWriteRecognizer.SVM_MODEL_FILE);
+//        return this.recognize(mat.getNativeObjAddr(),HandWriteRecognizer.getSvmModelFilePath(activityContext));
     }
 
     public void setBase64FormatTrainImg(final String trainVal, String base64FormatTrainImg, Context activityContext, String savePath){

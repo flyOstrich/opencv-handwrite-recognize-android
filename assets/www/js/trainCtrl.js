@@ -1,7 +1,7 @@
 var app = angular.module('app');
 app.controller('trainCtrl', function ($scope) {
-    this.imageList=[];
-    var me=this;
+    this.imageList = [];
+    var me = this;
     handwrite.getTrainImageList(function (imageList) {
         $scope.$apply(function () {
             me.imageList = imageList;
@@ -13,8 +13,8 @@ app.controller('trainCtrl', function ($scope) {
         return imgPath + "?timestamp=" + new Date().getTime();
     };
 
-    this.svmPath=null;
-    this.startTrain=function () {
+    this.svmPath = null;
+    this.startTrain = function () {
         handwrite.trainFromTrainImages(function (res) {
             $scope.$apply(function () {
                 me.svmPath = res.svmPath;
@@ -23,4 +23,6 @@ app.controller('trainCtrl', function ($scope) {
             console.error(arguments);
         });
     }
+
+
 });

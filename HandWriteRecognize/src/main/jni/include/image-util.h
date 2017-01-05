@@ -14,12 +14,21 @@ namespace Util {
         static const int COLOR_WHITE=1;
 
         //去除图像四周空白的部分
-        static void removeEmptySpace(cv::Mat &src, cv::Mat dst);
+        static cv::Mat removeEmptySpace(cv::Mat &src);
 
-        static void thinning(cv::InputArray input, cv::OutputArray output);
+        //重新调整图片大小
+        static cv::Mat resize(cv::Mat &src,cv::Size size);
+
+        static cv::Mat thinning(cv::InputArray input);
 
         //设置图片的背景和前景色
-        static void swapBgAndFgColor(cv::Mat &src, cv::Mat dst,int bgColor);
+        static cv::Mat swapBgAndFgColor(cv::Mat &src,int bgColor);
+
+        //打印矩阵到控制台
+        static void printMatrix(cv::Mat src);
+
+        //将图片上的字进行行列剪切
+        static std::list<std::list<cv::Mat> > cutImage(cv::Mat src);
     };
 
 }
