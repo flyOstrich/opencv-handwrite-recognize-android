@@ -24,6 +24,7 @@ add_library( # Sets the name of the library.
              src/main/jni/hand-write-recognize.cpp
              src/main/jni/trainer.cpp
              src/main/jni/image-util.cpp
+             src/main/jni/type-util.cpp
              src/main/jni/param-util.cpp)
 
 

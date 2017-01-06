@@ -33,36 +33,61 @@ public class HandWriteRecognizer {
     private static final String OPENCV_AVALIABLE = "opencv is successfully loaded!";
     private static final String BASE64_STR_CHARACTER = "base64,";
     public static final String SVM_MODEL_FILE = "handwrite_trained_result.yml";
-    public final String LABEL_CHARACTER_ASSET_LOCATION="svm-model/label_character_map.txt";
+    public final String LABEL_CHARACTER_ASSET_LOCATION = "svm-model/label_character_map.txt";
 
     static {
         System.loadLibrary("handwrite-recognize-lib");
     }
 
 
-
-    public int recognizeBase64FormatImg(String base64FormatImg,Context activityContext)  {
+    public int recognizeBase64FormatImg(String base64FormatImg, Context activityContext) {
         Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatImg);
         Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
         bitmapToMat(bitmapImg, mat);
-        return this.recognize(mat.getNativeObjAddr(),activityContext.getExternalFilesDir("")+"/"+HandWriteRecognizer.SVM_MODEL_FILE);
-//        return this.recognize(mat.getNativeObjAddr(),HandWriteRecognizer.getSvmModelFilePath(activityContext));
+//        int[][] res=this.recognizeMulti(mat.getNativeObjAddr(),HandWriteRecognizer.getSvmModelFilePath(activityContext));
+//        Log.d(TAG,res.toString());
+//        Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAA");
+//        return 1;
+        return this.recognize(mat.getNativeObjAddr(), activityContext.getExternalFilesDir("") + "/" + HandWriteRecognizer.SVM_MODEL_FILE);
+//      return this.recognize(mat.getNativeObjAddr(),HandWriteRecognizer.getSvmModelFilePath(activityContext));
     }
 
-    public void setBase64FormatTrainImg(final String trainVal, String base64FormatTrainImg, Context activityContext, String savePath){
+    /**
+     * 将一张图片按图片上的文字间隔进行分隔，并将分割后的图片进行识别，并将
+     * 识别结果以二维数组的形式返回，如：
+     * 图片上的文字位置如下：
+     * 1  2  3  4
+     * 5    6
+     * 7 8   9
+     * 则识别数组的结果为 :
+     * [["1","2","3","4"],["5","6"],["7","8","9"]]
+     *
+     * @param base64FormatImg
+     * @param activityContext
+     * @return
+     */
+    public int[][] recognizeMultipleBase64FormatImg(String base64FormatImg, Context activityContext) {
+        Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatImg);
+        Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
+        bitmapToMat(bitmapImg, mat);
+        return this.recognizeMulti(mat.getNativeObjAddr(), activityContext.getExternalFilesDir("") + "/" + HandWriteRecognizer.SVM_MODEL_FILE);
+//        return this.recognizeMulti(mat.getNativeObjAddr(), HandWriteRecognizer.getSvmModelFilePath(activityContext));
+    }
+
+    public void setBase64FormatTrainImg(final String trainVal, String base64FormatTrainImg, Context activityContext, String savePath) {
         Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatTrainImg);
         Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
         bitmapToMat(bitmapImg, mat);
-        File dir=new File(savePath);
-        if(!dir.exists())dir.mkdir();
-        int existLen=dir.list(new FilenameFilter() {
+        File dir = new File(savePath);
+        if (!dir.exists()) dir.mkdir();
+        int existLen = dir.list(new FilenameFilter() {
             @Override
             public boolean accept(File file, String s) {
                 return s.startsWith(trainVal);
             }
         }).length;
-        String fileName=trainVal+"_"+(existLen+1)+".bmp";
-        this.saveTrainImage(mat.getNativeObjAddr(),savePath+"/"+fileName);
+        String fileName = trainVal + "_" + (existLen + 1) + ".bmp";
+        this.saveTrainImage(mat.getNativeObjAddr(), savePath + "/" + fileName);
     }
 
     public static String getSvmModelFilePath(Context activityContext) {
@@ -79,14 +104,15 @@ public class HandWriteRecognizer {
     }
 
 
-
     public native int recognize(long imgAddress, String svm_model_path);
+
+    public native int[][] recognizeMulti(long imgAddress, String svm_model_path);
 
     public native String train(String[] images, String dir, String svm_model_path);
 
     public native String trainFromMat(Mat[] matList, int[] labels, String svm_model_path);
 
-    public native void testImageOperate(long matAddress,String imageSaveAddress);
+    public native void testImageOperate(long matAddress, String imageSaveAddress);
 
-    public native void saveTrainImage(long matAddress,String imageSaveAddress);
+    public native void saveTrainImage(long matAddress, String imageSaveAddress);
 }

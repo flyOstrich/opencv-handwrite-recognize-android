@@ -14,7 +14,7 @@ cordova.define("cordova-plugin-handwrite.handwrite", function (require, exports,
      */
     HandWrite.prototype.recognize = function (imgBase64, successCallback, errorCallback) {
 //    argscheck.checkArgs('fF', 'HandWrite.getInfo', arguments);
-        exec(successCallback, errorCallback, "HandWrite", "getHandWriteInfo", [imgBase64]);
+        exec(successCallback, errorCallback, "HandWrite", "recognize", [imgBase64]);
     };
     HandWrite.prototype.showImageList = function (successCallback, errorCallback) {
 //    argscheck.checkArgs('fF', 'HandWrite.getInfo', arguments);

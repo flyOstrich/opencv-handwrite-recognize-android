@@ -11,7 +11,7 @@ namespace Util {
     public:
         static const int COLOR_BLACK=0;
 
-        static const int COLOR_WHITE=1;
+        static const int COLOR_WHITE=255;
 
         //去除图像四周空白的部分
         static cv::Mat removeEmptySpace(cv::Mat &src);
@@ -29,6 +29,9 @@ namespace Util {
 
         //将图片上的字进行行列剪切
         static std::list<std::list<cv::Mat> > cutImage(cv::Mat src);
+
+        //获取图片背景色
+        static int getImageBgColor(cv::Mat src);
     };
 
 }

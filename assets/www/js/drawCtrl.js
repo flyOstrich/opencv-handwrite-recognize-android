@@ -4,10 +4,10 @@ app.controller('drawCtrl', function ($scope, $window) {
     this.options = {
         width: window.innerWidth,
         height: 300,
-        backgroundColor: 'black',
+        backgroundColor: 'white',
         lineWidth: 5, //px
         undo: true,
-        color: 'white'
+        color: 'black'
     };
     this.version = 0;
     this.trainVal = 0;

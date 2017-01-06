@@ -1,15 +1,16 @@
 #include <opencv2/opencv.hpp>
 #include "include/image-util.h"
-#include "include/log.h";
+#include "include/log.h"
+#include "include/type-util.h"
 
 using namespace cv;
 
-int getColorCount(cv::Mat src, int color) {
+int getColorCount(cv::Mat src, int bgColor) {
     int res = 0;
     for (int i = 0; i < src.rows; i++) {
         uchar *rowData = src.ptr<uchar>(i);
         for (int j = 0; j < src.cols; j++) {
-            if (rowData[j] == color)res++;
+            if (rowData[j] != bgColor)res++;
         }
     }
     return res;
@@ -19,11 +20,18 @@ void Util::ImageConverter::printMatrix(cv::Mat src) {
     for (int i = 0; i < src.rows; i++) {
         uchar *rowData = src.ptr<uchar>(i);
         std::string printRowStr = "";
-        for (int j = 0; j < src.rows; j++) {
-            if (rowData[j] > 0) {
-                printRowStr += "1";
-            } else {
-                printRowStr += "0";
+        for (int j = 0; j < src.cols; j++) {
+            int rgbVal=(int)rowData[j];
+            std::string rgbStr=Util::TypeConverter::int2String(rgbVal);
+            int strLen=std::strlen(rgbStr.c_str());
+            if(strLen==1){
+                printRowStr+=rgbStr+"   ";
+            }
+            if(strLen==2){
+                printRowStr+=rgbStr+"  ";
+            }
+            if(strLen==3){
+                printRowStr+=rgbStr+" ";
             }
         }
         LOGD("%s", printRowStr.c_str());
@@ -204,11 +212,12 @@ std::list<std::list<cv::Mat> > Util::ImageConverter::cutImage(cv::Mat src) {
     bool startFound=false;
     cv::Mat stepMat;
     std::list<std::list<cv::Mat> > list;
+    int bgColor=Util::ImageConverter::getImageBgColor(src);
     int start;
     int end;
     while (currentRow<row-step){
         stepMat=src.rowRange(currentRow,currentRow+step);
-        int colorCount=getColorCount(stepMat,Util::ImageConverter::COLOR_BLACK);
+        int colorCount=getColorCount(stepMat,bgColor);
         if(startFound&&colorCount==0){
             startFound=false;
             end=currentRow+step;
@@ -222,7 +231,7 @@ std::list<std::list<cv::Mat> > Util::ImageConverter::cutImage(cv::Mat src) {
             std::list<cv::Mat> vList;
             while (currentCol<col-step){
                 vStepMat=rowMat.colRange(currentCol,currentCol+step);
-                int vColorCount=getColorCount(vStepMat,Util::ImageConverter::COLOR_BLACK);
+                int vColorCount=getColorCount(vStepMat,bgColor);
                 if(vStartFound&&vColorCount==0){
                     vStartFound=false;
                     vEnd=currentCol+step;
@@ -243,6 +252,24 @@ std::list<std::list<cv::Mat> > Util::ImageConverter::cutImage(cv::Mat src) {
         currentRow++;
     }
     return list;
+}
+
+int Util::ImageConverter::getImageBgColor(cv::Mat src) {
+    int blackCnt=0;
+    int whiteCnt=0;
+    for (int i = 0; i < src.rows; i++) {
+        uchar *rowData = src.ptr<uchar>(i);
+        for (int j = 0; j < src.cols; j++) {
+            int rgbVal=(int)rowData[j];
+            if(rgbVal<30){
+                blackCnt++;
+            }
+            if(rgbVal>230){
+                whiteCnt++;
+            }
+        }
+    }
+    return blackCnt>whiteCnt?ImageConverter::COLOR_BLACK:ImageConverter::COLOR_WHITE;
 }
 
 

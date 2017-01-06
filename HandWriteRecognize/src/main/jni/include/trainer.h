@@ -4,6 +4,7 @@
 #include <list>
 #include <jni.h>
 #include <opencv2/opencv.hpp>
+#define TRAIN_IMAGE_SIZE  cv::Size(28,28)
 //using namespace cv;
 //using namespace std;
 namespace Trainer {

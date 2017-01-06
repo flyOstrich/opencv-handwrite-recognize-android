@@ -59,46 +59,9 @@ public class HandWriteRecognize extends CordovaPlugin {
     }
 
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        final Context ctx = this.cordova.getActivity();
-        if ("getHandWriteInfo".equals(action)) {
-            if (args.length() != 0) {
-                final JSONObject r = new JSONObject();
-                final String base64Str = (String) args.get(0);
-//                this.handWriteRecognizer.recognizeImg(base64Str,this.cordova.getActivity());
-                BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(ctx) {
-                    @Override
-                    public void onManagerConnected(int status) {
-                        switch (status) {
-                            case LoaderCallbackInterface.SUCCESS: {
-                                try {
-                                    FileOperator optr = new FileOperator(ctx);
-                                    optr.moveSvmModelFromAssetsDirToFilesDir(ctx);
-                                    HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
-                                    int result = handWriteRecognizer.recognizeBase64FormatImg(base64Str, ctx);
-                                    r.put("recognizeResult", result);
-                                    Log.d("InstrumentTest", "predict result is --->" + result);
-                                } catch (Exception e) {
-                                    Log.e("InstrumentTest", e.getMessage());
-                                }
-                            }
-                            break;
-                            default: {
-                                super.onManagerConnected(status);
-                            }
-                            break;
-                        }
-                    }
-                };
-                if (!OpenCVLoader.initDebug()) {
-                    OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, ctx, mLoaderCallback);
-                } else {
-                    mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-                }
-
-//                toDebugActivity(base64Str);
-                r.put("status", "true");
-                callbackContext.success(r);
-            }
+        if ("recognize".equals(action)) {
+            JSONArray res = this.recognizeMultipleBase64FormatImg(args);
+            callbackContext.success(res);
         } else if ("showImageList".equals(action)) {
             FileOperator optr = new FileOperator(this.cordova.getActivity());
             Context activity = this.cordova.getActivity();
@@ -144,16 +107,16 @@ public class HandWriteRecognize extends CordovaPlugin {
         } else if ("deleteTrainImage".equals(action)) {
             JSONArray ary = this.deleteTrainImage(args);
             callbackContext.success(ary);
-        } else if("getTrainImageList".equals(action)){
+        } else if ("getTrainImageList".equals(action)) {
             JSONArray ary = this.getTrainImageJSONArray();
             callbackContext.success(ary);
-        }else if("trainFromTrainImages".equals(action)){
+        } else if ("trainFromTrainImages".equals(action)) {
             JSONObject obj = this.trainFromTrainImages();
             callbackContext.success(obj);
-        }else if("getLabelCharacterMap".equals(action)){
+        } else if ("getLabelCharacterMap".equals(action)) {
             JSONObject obj = this.getLabelCharacterMap();
             callbackContext.success(obj);
-        }else {
+        } else {
             return false;
         }
 
@@ -163,11 +126,12 @@ public class HandWriteRecognize extends CordovaPlugin {
 
     /**
      * 获取训练样本图片地址
+     *
      * @return
      */
-    private JSONArray getTrainImageJSONArray(){
+    private JSONArray getTrainImageJSONArray() {
         JSONArray ary = new JSONArray();
-        Context ctx=this.cordova.getActivity();
+        Context ctx = this.cordova.getActivity();
         //读取重命名后的文件列表并返回
         String[] fileNames = ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME).list();
         for (int i = 0; i < fileNames.length; i++) {
@@ -178,6 +142,7 @@ public class HandWriteRecognize extends CordovaPlugin {
 
     /**
      * 添加训练样本图片
+     *
      * @param args
      * @return
      * @throws JSONException
@@ -203,6 +168,7 @@ public class HandWriteRecognize extends CordovaPlugin {
 
     /**
      * 删除训练样本图片
+     *
      * @param args
      * @return
      * @throws JSONException
@@ -211,98 +177,148 @@ public class HandWriteRecognize extends CordovaPlugin {
         Context ctx = this.cordova.getActivity();
         String imgPath = (String) args.get(0);
         //获取trainVal
-        String[] temp=imgPath.split("/");
-        String imageName=temp[temp.length-1];
-        final String trainVal=imageName.split("_")[0];
+        String[] temp = imgPath.split("/");
+        String imageName = temp[temp.length - 1];
+        final String trainVal = imageName.split("_")[0];
         //删除图片
         File imgFile = new File(imgPath);
         imgFile.delete();
         //为trainVal相关图片重命名
-        String[] relatedImgs=ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME).list(new FilenameFilter() {
+        String[] relatedImgs = ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME).list(new FilenameFilter() {
             @Override
             public boolean accept(File file, String s) {
                 return s.startsWith(trainVal);
             }
         });
-        for(int i=0;i<relatedImgs.length;i++){
-            File file=new File(ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME).getAbsolutePath()+"/"+relatedImgs[i]);
-            file.renameTo(new File(ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME).getAbsolutePath()+"/"+trainVal+"_"+i+".bmp"));
+        for (int i = 0; i < relatedImgs.length; i++) {
+            File file = new File(ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME).getAbsolutePath() + "/" + relatedImgs[i]);
+            file.renameTo(new File(ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME).getAbsolutePath() + "/" + trainVal + "_" + i + ".bmp"));
         }
         return this.getTrainImageJSONArray();
     }
 
     /**
      * 根据训练图片进行svm训练，并生成训练模型文件
+     *
      * @return
      * @throws JSONException
      */
     public JSONObject trainFromTrainImages() throws JSONException {
-        JSONObject rt=new JSONObject();
-        Context ctx=this.cordova.getActivity();
-        File trainImageFolder=ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME);
-        String svmModelPath=ctx.getExternalFilesDir("").getAbsolutePath()+"/"+HandWriteRecognizer.SVM_MODEL_FILE;
-        FileOperator optr=new FileOperator(ctx);
-        String[] trainImageNames=trainImageFolder.list();
-        Mat[] images=new Mat[trainImageNames.length];
-        int[] labels=new int[trainImageNames.length];
-        for(int i=0;i<trainImageNames.length;i++){
-            String trainImageName=trainImageNames[i];
-            images[i]=optr.convertImg2Mat(ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME)+"/"+trainImageNames[i]);
-            labels[i]=Integer.parseInt(trainImageName.split("_")[0]);
+        JSONObject rt = new JSONObject();
+        Context ctx = this.cordova.getActivity();
+        File trainImageFolder = ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME);
+        String svmModelPath = ctx.getExternalFilesDir("").getAbsolutePath() + "/" + HandWriteRecognizer.SVM_MODEL_FILE;
+        FileOperator optr = new FileOperator(ctx);
+        String[] trainImageNames = trainImageFolder.list();
+        Mat[] images = new Mat[trainImageNames.length];
+        int[] labels = new int[trainImageNames.length];
+        for (int i = 0; i < trainImageNames.length; i++) {
+            String trainImageName = trainImageNames[i];
+            images[i] = optr.convertImg2Mat(ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME) + "/" + trainImageNames[i]);
+            labels[i] = Integer.parseInt(trainImageName.split("_")[0]);
         }
         handWriteRecognizer.trainFromMat(images, labels, svmModelPath);
-        rt.put("svmPath",svmModelPath);
+        rt.put("svmPath", svmModelPath);
         return rt;
     }
 
-    public JSONObject getLabelCharacterMap() throws JSONException{
-        JSONObject obj=new JSONObject();
-        JSONArray mapList =new JSONArray();
+    public JSONObject getLabelCharacterMap() throws JSONException {
+        JSONObject obj = new JSONObject();
+        JSONArray mapList = new JSONArray();
         String errorMsg;
 
         try {
-            InputStream fileLabelCharacterMap =this.getActivity().getAssets().open(handWriteRecognizer.LABEL_CHARACTER_ASSET_LOCATION);
-            byte[] buffer=new byte[fileLabelCharacterMap.available()];
+            InputStream fileLabelCharacterMap = this.getActivity().getAssets().open(handWriteRecognizer.LABEL_CHARACTER_ASSET_LOCATION);
+            byte[] buffer = new byte[fileLabelCharacterMap.available()];
             fileLabelCharacterMap.read(buffer);
-            String mapStr=new String(buffer);
-            mapStr=mapStr.replace("\r","");
-            String[] mapItemList=mapStr.split("\n");
+            String mapStr = new String(buffer);
+            mapStr = mapStr.replace("\r", "");
+            String[] mapItemList = mapStr.split("\n");
             //数字与文字的map长度应该大于2
-            if(mapItemList.length<2){
-                errorMsg="parseError:label character map length should > 2";
-                obj.put("errorMsg",errorMsg);
-                Log.e(TAG,errorMsg);
+            if (mapItemList.length < 2) {
+                errorMsg = "parseError:label character map length should > 2";
+                obj.put("errorMsg", errorMsg);
+                Log.e(TAG, errorMsg);
                 return obj;
             }
-            for(int i=0;i<mapItemList.length;i++){
-                String mapItem=mapItemList[i];
-                String[] map=mapItem.split(":");
-                if(map.length!=2){
-                    errorMsg="parseError:label character map ";
-                    obj.put("errorMsg",errorMsg);
-                    Log.e(TAG,errorMsg);
-                    return  obj;
-                }
-                try{
-                   Integer.parseInt(map[0]);
-                }catch (Exception e){
-                    errorMsg="parserError:label should be Integer,got "+map[0];
-                    obj.put("errorMsg",errorMsg);
-                    Log.e(TAG,errorMsg);
+            for (int i = 0; i < mapItemList.length; i++) {
+                String mapItem = mapItemList[i];
+                String[] map = mapItem.split(":");
+                if (map.length != 2) {
+                    errorMsg = "parseError:label character map ";
+                    obj.put("errorMsg", errorMsg);
+                    Log.e(TAG, errorMsg);
                     return obj;
                 }
-                JSONObject mapJSONItem=new JSONObject();
-                mapJSONItem.put("label",map[0]);
-                mapJSONItem.put("character",map[1]);
+                try {
+                    Integer.parseInt(map[0]);
+                } catch (Exception e) {
+                    errorMsg = "parserError:label should be Integer,got " + map[0];
+                    obj.put("errorMsg", errorMsg);
+                    Log.e(TAG, errorMsg);
+                    return obj;
+                }
+                JSONObject mapJSONItem = new JSONObject();
+                mapJSONItem.put("label", map[0]);
+                mapJSONItem.put("character", map[1]);
                 mapList.put(mapJSONItem);
             }
-            obj.put("labelCharacterList",mapList);
+            obj.put("labelCharacterList", mapList);
         } catch (IOException e) {
-            Log.d(TAG,e.getMessage());
+            Log.d(TAG, e.getMessage());
             e.printStackTrace();
-            obj.put("errorMsg",e.getMessage());
+            obj.put("errorMsg", e.getMessage());
         }
         return obj;
+    }
+
+    public JSONArray recognizeMultipleBase64FormatImg(JSONArray args) throws JSONException {
+        String base64FormatImg = (String) args.get(0);
+        int[][] recognizeRes = handWriteRecognizer.recognizeMultipleBase64FormatImg(base64FormatImg, this.getActivity());
+
+        JSONArray recognizeCharacterAry = new JSONArray();
+        for (int i = 0; i < recognizeRes.length; i++) {
+            JSONArray recognizeRowCharacterAry = new JSONArray();
+            int[] rowRes = recognizeRes[i];
+            for (int j = 0; j < rowRes.length; j++) {
+                int recognizeLabel = rowRes[j];
+                try {
+                    String character = this.getCharacterByLabel(this.getLabelCharacterMap(), recognizeLabel);
+                    recognizeRowCharacterAry.put(character);
+                } catch (Exception e) {
+                    Log.e(TAG, e.getMessage());
+                    recognizeRowCharacterAry.put(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            recognizeCharacterAry.put(recognizeRowCharacterAry);
+        }
+        return recognizeCharacterAry;
+    }
+
+    /**
+     * 根据label值查找对应的文字
+     *
+     * @param labelCharacterMap
+     * @param label
+     * @return
+     * @throws Exception
+     */
+    public String getCharacterByLabel(JSONObject labelCharacterMap, int label) throws Exception {
+        JSONArray mapList = (JSONArray) labelCharacterMap.get("labelCharacterList");
+        String res = null;
+        for (int i = 0; i < mapList.length(); i++) {
+            JSONObject obj = (JSONObject) mapList.get(i);
+            int labelVal = Integer.parseInt((String) obj.get("label"));
+            if (labelVal == label) {
+                res = (String) obj.get("character");
+                break;
+            }
+        }
+        if (res == null) {
+            throw new Exception("no character found for label:" + label);
+        }
+        return res;
     }
 
     public void toDebugActivity(String base64Str) {
@@ -314,7 +330,7 @@ public class HandWriteRecognize extends CordovaPlugin {
         this.cordova.getActivity().startActivity(intent);
     }
 
-    public Context getActivity(){
+    public Context getActivity() {
         return this.cordova.getActivity();
     }
 

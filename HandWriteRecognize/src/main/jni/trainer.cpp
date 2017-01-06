@@ -1,5 +1,6 @@
 #include "include/trainer.h"
 #include "include/log.h"
+#include "include/image-util.h"
 #include <fstream>
 
 using namespace cv;
@@ -16,6 +17,8 @@ std::list<std::pair<int, cv::Mat> > Trainer::HogComputer::getGradientList(
         cv::Mat img = img_pair.second;
         int img_label = img_pair.first;
         cvtColor(img, gray, cv::COLOR_BGR2GRAY);
+        LOGD("train image");
+        Util::ImageConverter::printMatrix(gray);
         gradient_lst.push_back(std::pair<int, cv::Mat>(img_label
                 , Trainer::HogComputer::getHogDescriptorForImage(gray)));
         image_list.pop_front();
@@ -96,26 +99,26 @@ cv::Mat Trainer::HogComputer::getHogDescriptorMat(const char *recognizing_img_pa
     Mat gray, resizedGray;
     Mat recognizing_img = imread(recognizing_img_path);
     cvtColor(recognizing_img, gray, cv::COLOR_BGR2GRAY);
-    resize(gray, resizedGray, Size(28, 28));
+    resize(gray, resizedGray,TRAIN_IMAGE_SIZE);
     return Trainer::HogComputer::getHogDescriptorForImage(resizedGray);
 }
 cv::Mat Trainer::HogComputer::getHogDescriptorMat(cv::Mat mat) {
     Mat gray, resizedGray;
     cvtColor(mat, gray, cv::COLOR_BGR2GRAY);
-    resize(gray, resizedGray, Size(28, 28));
+    resize(gray, resizedGray, TRAIN_IMAGE_SIZE);
     return Trainer::HogComputer::getHogDescriptorForImage(resizedGray);
 }
 
 cv::Mat Trainer::HogComputer::getHogDescriptorForImage(cv::Mat image) {
     cv::HOGDescriptor hog(
-            cvSize(28, 28)    //winSize
+            TRAIN_IMAGE_SIZE    //winSize
             , cvSize(14, 14)  //表示块（block）大小
             , cvSize(7, 7)    //块滑动增量（blockStride）大小
             , cvSize(7, 7)    //cvSize(4, 3)表示胞元（cell）大小
             , 9);
     std::vector<float> descriptors;
     std::vector<cv::Point> location;
-    hog.compute(image, descriptors, cv::Size(28, 28), cv::Size(0, 0), location);
+    hog.compute(image, descriptors,TRAIN_IMAGE_SIZE, cv::Size(0, 0), location);
     int size=descriptors.size();
     Mat dMat = cv::Mat(descriptors).clone();
     Mat resMat(1,size,CV_32FC1);

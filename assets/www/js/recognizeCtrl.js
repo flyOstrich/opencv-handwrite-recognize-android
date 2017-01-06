@@ -4,10 +4,10 @@ app.controller('recognizeCtrl', function ($scope, $window) {
     this.options = {
         width: window.innerWidth,
         height: 300,
-        backgroundColor: 'black',
+        backgroundColor: 'white',
         lineWidth: 5, //px
         undo: true,
-        color: 'white'
+        color: 'black'
     };
     this.version = 0;
     var me = this;
@@ -15,7 +15,14 @@ app.controller('recognizeCtrl', function ($scope, $window) {
         var drawArea = document.querySelector('.recognize-draw-area');
         var url = drawArea.querySelector('#pwCanvasMain').toDataURL();
         handwrite.recognize(url, function (res) {
-            document.querySelector('#res').innerHTML = "识别结果：" + res.recognizeResult;
+            var recognizeResult="";
+            res.forEach(function(row){
+               row.forEach(function(rowItem){
+                   recognizeResult+=rowItem;
+               });
+               recognizeResult+="\n";
+            });
+            document.querySelector('#res').innerHTML = "识别结果：" + recognizeResult;
             console.log(res.recognizeResult);
         }, function () {
             console.log(arguments);
