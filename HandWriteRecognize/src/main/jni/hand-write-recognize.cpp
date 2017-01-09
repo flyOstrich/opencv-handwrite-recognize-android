@@ -43,7 +43,7 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
     cv::Mat resizedRes = Util::ImageConverter::resize(noEmptyRes,TRAIN_IMAGE_SIZE);
     LOGD("缩放图片(width:%d,height:%d)", resizedRes.cols, resizedRes.rows);
     //提取图片骨架
-    cv::Mat thinRes = Util::ImageConverter::thinning(resizedRes);
+    cv::Mat thinRes = Util::ImageConverter::thinImage(resizedRes);
     LOGD("提取图片骨架(width:%d,height:%d)", thinRes.cols, thinRes.rows);
     Util::ImageConverter::printMatrix(thinRes);
 
@@ -86,7 +86,6 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognizeMulti(
     //获取图片中的每个字的子区域图片(图片分割)
     std::list<std::list<cv::Mat> > characterImageMatrix = Util::ImageConverter::cutImage(gray);
     LOGD("获取图片中的每个字的子区域图片 row:%d", characterImageMatrix.size());
-
     //识别
     Ptr<SVM> svm = StatModel::load<SVM>(s_svm_model_path.c_str());
     jobjectArray rtObjArray = env->NewObjectArray(characterImageMatrix.size(),env->FindClass("[I"),NULL);
@@ -99,10 +98,13 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognizeMulti(
         int index = 0;
         while (!rowImages.empty()) {
             cv::Mat characterMat = rowImages.back();
+            characterMat=Util::ImageConverter::removeEmptySpace(characterMat);
             cv::Mat resizedRes = Util::ImageConverter::resize(characterMat,TRAIN_IMAGE_SIZE);
             LOGD("---------Resized image to Recognize(width:%d,height:%d)------------", resizedRes.cols, resizedRes.rows);
-            Util::ImageConverter::printMatrix(resizedRes);
-            Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(resizedRes);
+            cv::Mat cannyRes =Util::ImageConverter::twoValue(resizedRes,100,true);
+            cannyRes=Util::ImageConverter::thinImage(cannyRes);
+            Util::ImageConverter::printMatrix(cannyRes);
+            Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(cannyRes);
             jint recognize_result = svm->predict(descriptorMat);
             LOGD("---------predict result %d------------", recognize_result);
             rowRecognizeRes[index] = recognize_result;
@@ -208,15 +210,23 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_saveTrainImage(
                                                                                    img_save_location);
     LOGD("Train Image Origin:img rows--->%d,img cols--->%d", img_mat.rows, img_mat.cols);
     cvtColor(img_mat, gray, cv::COLOR_BGR2GRAY);
-    LOGD("Gray Image Matrix:");
+    LOGD("Gray Image Matrix(width:%d,height:%d):",gray.cols,gray.rows);
     Util::ImageConverter::printMatrix(gray);
-    LOGD("Gray Image :img rows--->%d,img cols--->%d", gray.rows, gray.cols);
     cv::Mat noEmptyRes = Util::ImageConverter::removeEmptySpace(gray);
-    LOGD("Cut Image : rows--->%d,img cols--->%d", noEmptyRes.rows, noEmptyRes.cols);
+    LOGD("Cut Image : (width:%d,height:%d)", noEmptyRes.cols, noEmptyRes.rows);
+    Util::ImageConverter::printMatrix(noEmptyRes);
     cv::Mat resizedRes = Util::ImageConverter::resize(noEmptyRes, TRAIN_IMAGE_SIZE);
+    LOGD("Resize Image : (width:%d,height:%d)", resizedRes.cols, resizedRes.rows);
     Util::ImageConverter::printMatrix(resizedRes);
+    cv::Mat thinRes = Util::ImageConverter::thinImage(resizedRes);
+    LOGD("Thin Image : (width:%d,height:%d)", thinRes.cols, thinRes.rows);
+    Util::ImageConverter::printMatrix(thinRes);
+    cv::Mat twoValueRes=Util::ImageConverter::twoValue(thinRes,100,true);
+    cv::Mat res=Util::ImageConverter::thinImage(twoValueRes);
+    LOGD("TwoValue Image : (width:%d,height:%d)", twoValueRes.cols, twoValueRes.rows);
+    Util::ImageConverter::printMatrix(res);
     LOGD("img save location ---->%s", s_img_save_location.c_str());
-    imwrite(s_img_save_location.c_str(), resizedRes);
+    imwrite(s_img_save_location.c_str(), res);
 }
 
 

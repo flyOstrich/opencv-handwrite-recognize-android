@@ -20,9 +20,9 @@ app.controller('recognizeCtrl', function ($scope, $window) {
                row.forEach(function(rowItem){
                    recognizeResult+=rowItem;
                });
-               recognizeResult+="\n";
+               recognizeResult+="<br/>";
             });
-            document.querySelector('#res').innerHTML = "识别结果：" + recognizeResult;
+            document.querySelector('#res').innerHTML = "识别结果：<br/>" + recognizeResult;
             console.log(res.recognizeResult);
         }, function () {
             console.log(arguments);

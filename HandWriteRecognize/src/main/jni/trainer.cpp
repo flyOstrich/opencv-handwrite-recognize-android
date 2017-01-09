@@ -54,7 +54,7 @@ void Trainer::HogComputer::trainSvm(std::pair<cv::Mat, cv::Mat> train_data,
     cv::Mat train_data_labels = train_data.first;
     /* Default values to train SVM */
 //    svm->setTermCriteria(cv::TermCriteria( CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 1000, 1e-3 ));
-    svm->setKernel(cv::ml::SVM::RBF);
+    svm->setKernel(cv::ml::SVM::LINEAR  );
     svm->setType(
             cv::ml::SVM::C_SVC); // C_SVC; // EPSILON_SVR; // may be also NU_SVR; // do regression task
     svm->train(train_data_mat, cv::ml::ROW_SAMPLE, train_data_labels);
