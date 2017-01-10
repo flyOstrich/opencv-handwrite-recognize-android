@@ -1,22 +1,26 @@
 <style>
     li {
-        width: 33.3%;
+        width: 24.5%;
     }
 </style>
 <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" ui-sref="draw"><a href="#">训练样本</a></li>
     <li role="presentation" ui-sref="train"><a href="#">训练模型</a></li>
     <li role="presentation"  class="active"><a href="#">测试识别</a></li>
+    <li role="presentation" ui-sref="cutImg" ><a href="#">图片分割</a></li>
 </ul>
 <div class="recognize-draw-area" style="position: relative">
     <div id="res"></div>
     <div pw-canvas options="ctrl.options"
          version="ctrl.version"
          event-delegate="ctrl.eventDelegate"></div>
-    <div style="position: absolute;right: 5px;bottom: 5px;">
+    <span>选择颜色：<div pw-color-selector="['#000', '#00f', '#0f0', '#f00', '#fff']" color="ctrl.options.color"></div></span>
+    <span>比划粗细：<input type="range" min="1" max="50" ng-model="ctrl.options.lineWidth" class="lineWidthSelector">{{ctrl.options.lineWidth}}</span>
+    <div style="position: absolute;right: 5px;bottom: -50px;">
         <input type="number" maxlength="1" minlength="1" ng-model="ctrl.trainVal">
         <div class="btn-group">
             <button type="button" class="btn btn-small btn-default" ng-click="ctrl.recognizeImg()">识别</button>
+            <button type="button" class="btn btn-small btn-default" ng-click="ctrl.undo()">撤销</button>
             <button type="button" class="btn btn-small btn-default" ng-click="ctrl.clear()">清除</button>
         </div>
     </div>

@@ -116,6 +116,9 @@ public class HandWriteRecognize extends CordovaPlugin {
         } else if ("getLabelCharacterMap".equals(action)) {
             JSONObject obj = this.getLabelCharacterMap();
             callbackContext.success(obj);
+        } else if ("getCutImages".equals(action)) {
+            JSONObject obj = this.getCutImages();
+            callbackContext.success(obj);
         } else {
             return false;
         }
@@ -148,6 +151,9 @@ public class HandWriteRecognize extends CordovaPlugin {
      * @throws JSONException
      */
     public JSONArray setTrainImage(JSONArray args) throws JSONException {
+
+        File dir = new File(this.getActivity().getExternalFilesDir(TRAIN_IMAGE_DIR_NAME).getAbsolutePath());
+        if (!dir.exists()) dir.mkdir();
         //cast trainVal
         String trainVal;
         if (args.get(0) instanceof Integer) {
@@ -155,14 +161,14 @@ public class HandWriteRecognize extends CordovaPlugin {
         } else {
             trainVal = (String) args.get(0);
         }
-        //get base64 image
-        String base64Img = (String) args.get(1);
-
-        HandWriteRecognizer handWriteRecognizer = new HandWriteRecognizer();
-        Context ctx = this.cordova.getActivity();
-        File dir = new File(ctx.getExternalFilesDir(TRAIN_IMAGE_DIR_NAME).getAbsolutePath());
-        if (!dir.exists()) dir.mkdir();
-        handWriteRecognizer.setBase64FormatTrainImg(trainVal, base64Img, ctx, dir.getAbsolutePath());
+        if (args.get(1).equals(null)) {
+            String imgUrl = (String) args.get(2);
+            this.handWriteRecognizer.setTrainImg(trainVal, imgUrl, dir.getAbsolutePath());
+        } else {
+            //get base64 image
+            String base64Img = (String) args.get(1);
+            this.handWriteRecognizer.setTrainImg(trainVal, base64Img, dir.getAbsolutePath());
+        }
         return this.getTrainImageJSONArray();
     }
 
@@ -318,6 +324,24 @@ public class HandWriteRecognize extends CordovaPlugin {
         if (res == null) {
             throw new Exception("no character found for label:" + label);
         }
+        return res;
+    }
+
+    public JSONObject getCutImages() throws JSONException {
+        JSONObject res = new JSONObject();
+        File filesDir = new File(this.getActivity().getExternalFilesDir("") + "/" + FileOperator.TEST_IMAGES_DIR);
+        File[] files = filesDir.listFiles();
+        JSONArray cut_images = new JSONArray();
+        for (int i = 0; i < files.length; i++) {
+            File f = files[i];
+            String path = f.getAbsolutePath();
+            if (path.contains("last")) {
+                res.put("lastRecognizeImg", path);
+            } else {
+                cut_images.put(path);
+            }
+        }
+        res.put("cut_images", cut_images);
         return res;
     }
 

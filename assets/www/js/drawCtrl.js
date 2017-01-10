@@ -35,7 +35,7 @@ app.controller('drawCtrl', function ($scope, $window) {
     this.saveImg = function () {
         var me = this;
         var url = document.querySelector('#pwCanvasMain').toDataURL();
-        handwrite.setTrainImage(this.selectedLabelCharacterMap.label, url, function (imageList) {
+        handwrite.setTrainImage(this.selectedLabelCharacterMap.label, url, null, function (imageList) {
             $scope.$apply(function () {
                 me.imageList =  me.addTimeStamp(imageList);
                 me.clear();

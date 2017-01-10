@@ -1,10 +1,10 @@
 var app = angular.module('app');
 app.config(['$stateProvider', '$locationProvider',function ($stateProvider,$locationProvider) {
     $locationProvider.html5Mode(false);
-    $stateProvider.state('main', { //作业评价
-        url: '/main',
-        templateUrl:"templates/main.html",
-        // controller: 'workPraiseCtrl as ctrl'
+    $stateProvider.state('cutImg', { //作业评价
+        url: '/cutImg',
+        templateUrl:"templates/cutImg.html",
+         controller: 'cutImgCtrl as ctrl'
     }).state('draw', { //作业评价
         url: '/draw',
         templateUrl:"templates/draw.html",

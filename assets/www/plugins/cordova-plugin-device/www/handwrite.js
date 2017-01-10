@@ -20,9 +20,9 @@ cordova.define("cordova-plugin-handwrite.handwrite", function (require, exports,
 //    argscheck.checkArgs('fF', 'HandWrite.getInfo', arguments);
         exec(successCallback, errorCallback, "HandWrite", "showImageList", []);
     };
-    HandWrite.prototype.setTrainImage = function (trainVal, imgBase64, successCallback, errorCallback) {
+    HandWrite.prototype.setTrainImage = function (trainVal, imgBase64,imgUrl, successCallback, errorCallback) {
 //    argscheck.checkArgs('fF', 'HandWrite.getInfo', arguments);
-        exec(successCallback, errorCallback, "HandWrite", "setTrainImage", [trainVal, imgBase64]);
+        exec(successCallback, errorCallback, "HandWrite", "setTrainImage", [trainVal, imgBase64,imgUrl]);
     };
     HandWrite.prototype.deleteTrainImage = function (imgPath, successCallback, errorCallback) {
         //    argscheck.checkArgs('fF', 'HandWrite.getInfo', arguments);
@@ -40,6 +40,10 @@ cordova.define("cordova-plugin-handwrite.handwrite", function (require, exports,
      HandWrite.prototype.getLabelCharacterMap = function (successCallback, errorCallback) {
             //    argscheck.checkArgs('fF', 'HandWrite.getInfo', arguments);
             exec(successCallback, errorCallback, "HandWrite", "getLabelCharacterMap",[]);
+     };
+     HandWrite.prototype.getCutImages = function (successCallback, errorCallback) {
+                 //    argscheck.checkArgs('fF', 'HandWrite.getInfo', arguments);
+                 exec(successCallback, errorCallback, "HandWrite", "getCutImages",[]);
      };
 
 

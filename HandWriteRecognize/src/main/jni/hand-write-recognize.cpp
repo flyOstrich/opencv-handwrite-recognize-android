@@ -5,9 +5,13 @@
 #include "param-util.h"
 #include "image-util.h"
 #include "type-util.h"
+#include <stdlib.h>
 
 using namespace cv;
 using namespace cv::ml;
+using namespace std;
+using namespace Util;
+
 /**********************************************************************************
 Func    Name: recognize
 Descriptions: 将一张图片识别识别为单个文字结果
@@ -40,7 +44,7 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognize(
 //    std::list<std::list<cv::Mat> > characterImageMatrix=Util::ImageConverter::cutImage(swap);
 //    LOGD("获取图片中的每个字的子区域图片 row:%d",characterImageMatrix.size());
     //缩放图片
-    cv::Mat resizedRes = Util::ImageConverter::resize(noEmptyRes,TRAIN_IMAGE_SIZE);
+    cv::Mat resizedRes = Util::ImageConverter::resize(noEmptyRes, TRAIN_IMAGE_SIZE);
     LOGD("缩放图片(width:%d,height:%d)", resizedRes.cols, resizedRes.rows);
     //提取图片骨架
     cv::Mat thinRes = Util::ImageConverter::thinImage(resizedRes);
@@ -67,6 +71,7 @@ Descriptions: 将一张图片按图片上的文字间隔进行分隔，并将分
       [["1","2","3","4"],["5","6"],["7","8","9"]]
 Input   para: jl_recognizing_image 图片地址
 Input   para: svm_model_path       识别模型文件的地址
+Input   para: cutimg_save_dir      分割后图片的保存地址，如果没有，则不保存
 Return value: 二维数组的识别结果
 ***********************************************************************************/
 extern "C"
@@ -75,20 +80,24 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognizeMulti(
         JNIEnv *env,
         jobject,
         jlong jl_recognizing_image,
-        jstring svm_model_path) {
-    std::string s_svm_model_path = Util::ParamConverter::convertJstringToString(env,
-                                                                                svm_model_path);
-    cv::Mat recognizing_image = *(cv::Mat *) jl_recognizing_image;
+        jstring svm_model_path,
+        jstring cutimg_save_dir) {
+    string s_svm_model_path = ParamConverter::convertJstringToString(env, svm_model_path);
+    string s_cutimg_save_dir = ParamConverter::convertJstringToString(env, cutimg_save_dir);
+    LOGD("s_svm_model_path %s", s_svm_model_path.c_str());
+    LOGD("s_cutimg_save_dir %s", s_cutimg_save_dir.c_str());
+    Mat recognizing_image = *(Mat *) jl_recognizing_image;
     //将图片灰度化
-    cv::Mat gray(cv::Size(recognizing_image.cols, recognizing_image.rows), CV_8UC1);
+    Mat gray(Size(recognizing_image.cols, recognizing_image.rows), CV_8UC1);
     cvtColor(recognizing_image, gray, cv::COLOR_BGR2GRAY);
     LOGD("将图片灰度化(width:%d,height:%d)", gray.cols, gray.rows);
     //获取图片中的每个字的子区域图片(图片分割)
-    std::list<std::list<cv::Mat> > characterImageMatrix = Util::ImageConverter::cutImage(gray);
+    list<list<Mat> > characterImageMatrix = ImageConverter::cutImage(gray);
     LOGD("获取图片中的每个字的子区域图片 row:%d", characterImageMatrix.size());
     //识别
     Ptr<SVM> svm = StatModel::load<SVM>(s_svm_model_path.c_str());
-    jobjectArray rtObjArray = env->NewObjectArray(characterImageMatrix.size(),env->FindClass("[I"),NULL);
+    jobjectArray rtObjArray = env->NewObjectArray(characterImageMatrix.size(), env->FindClass("[I"),
+                                                  NULL);
     int idx = 0;
     while (!characterImageMatrix.empty()) {
         std::list<cv::Mat> rowImages = characterImageMatrix.back();
@@ -98,14 +107,23 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognizeMulti(
         int index = 0;
         while (!rowImages.empty()) {
             cv::Mat characterMat = rowImages.back();
-            characterMat=Util::ImageConverter::removeEmptySpace(characterMat);
-            cv::Mat resizedRes = Util::ImageConverter::resize(characterMat,TRAIN_IMAGE_SIZE);
-            LOGD("---------Resized image to Recognize(width:%d,height:%d)------------", resizedRes.cols, resizedRes.rows);
-            cv::Mat cannyRes =Util::ImageConverter::twoValue(resizedRes,100,true);
-            cannyRes=Util::ImageConverter::thinImage(cannyRes);
-            Util::ImageConverter::printMatrix(cannyRes);
-            Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(cannyRes);
+            characterMat = Util::ImageConverter::removeEmptySpace(characterMat);
+            characterMat = Util::ImageConverter::resize(characterMat, TRAIN_IMAGE_SIZE);
+            LOGD("----Resized image to Recognize(width:%d,height:%d)----", characterMat.cols,
+                 characterMat.rows);
+            characterMat = Util::ImageConverter::twoValue(characterMat, 100, true);
+            characterMat = Util::ImageConverter::thinImage(characterMat);
+            Util::ImageConverter::printMatrix(characterMat);
+            if (s_cutimg_save_dir != "NONE") {
+                string cut_image = s_cutimg_save_dir + "/" + TypeConverter::int2String(idx)
+                                   + TypeConverter::int2String(index) + "_img.bmp";
+                LOGD("save cut img:%s", cut_image.c_str());
+                imwrite(cut_image.c_str(), characterMat);
+            }
+            Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(characterMat);
             jint recognize_result = svm->predict(descriptorMat);
+//            svm->empty();
+//            svm = StatModel::load<SVM>(s_svm_model_path.c_str());
             LOGD("---------predict result %d------------", recognize_result);
             rowRecognizeRes[index] = recognize_result;
             rowImages.pop_back();
@@ -190,7 +208,7 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_testImageOperate(
     cvtColor(img_mat, gray, cv::COLOR_BGR2GRAY);
     cv::Mat swap(cv::Size(gray.rows, gray.cols), CV_8UC1);
     cv::Mat noEmptyRes = Util::ImageConverter::removeEmptySpace(swap);
-    cv::Mat resizeRes = Util::ImageConverter::resize(noEmptyRes,TRAIN_IMAGE_SIZE);
+    cv::Mat resizeRes = Util::ImageConverter::resize(noEmptyRes, TRAIN_IMAGE_SIZE);
     LOGD("img save location ---->%s", s_img_save_location.c_str());
 }
 
@@ -210,7 +228,7 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_saveTrainImage(
                                                                                    img_save_location);
     LOGD("Train Image Origin:img rows--->%d,img cols--->%d", img_mat.rows, img_mat.cols);
     cvtColor(img_mat, gray, cv::COLOR_BGR2GRAY);
-    LOGD("Gray Image Matrix(width:%d,height:%d):",gray.cols,gray.rows);
+    LOGD("Gray Image Matrix(width:%d,height:%d):", gray.cols, gray.rows);
     Util::ImageConverter::printMatrix(gray);
     cv::Mat noEmptyRes = Util::ImageConverter::removeEmptySpace(gray);
     LOGD("Cut Image : (width:%d,height:%d)", noEmptyRes.cols, noEmptyRes.rows);
@@ -221,8 +239,8 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_saveTrainImage(
     cv::Mat thinRes = Util::ImageConverter::thinImage(resizedRes);
     LOGD("Thin Image : (width:%d,height:%d)", thinRes.cols, thinRes.rows);
     Util::ImageConverter::printMatrix(thinRes);
-    cv::Mat twoValueRes=Util::ImageConverter::twoValue(thinRes,100,true);
-    cv::Mat res=Util::ImageConverter::thinImage(twoValueRes);
+    cv::Mat twoValueRes = Util::ImageConverter::twoValue(thinRes, 100, true);
+    cv::Mat res = Util::ImageConverter::thinImage(twoValueRes);
     LOGD("TwoValue Image : (width:%d,height:%d)", twoValueRes.cols, twoValueRes.rows);
     Util::ImageConverter::printMatrix(res);
     LOGD("img save location ---->%s", s_img_save_location.c_str());

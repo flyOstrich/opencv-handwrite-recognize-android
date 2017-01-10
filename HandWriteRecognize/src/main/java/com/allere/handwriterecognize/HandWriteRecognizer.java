@@ -17,6 +17,7 @@ import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class HandWriteRecognizer {
 
 
     public int recognizeBase64FormatImg(String base64FormatImg, Context activityContext) {
-        Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatImg);
+        Bitmap bitmapImg = this.getBitMap(base64FormatImg);
         Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
         bitmapToMat(bitmapImg, mat);
 //        int[][] res=this.recognizeMulti(mat.getNativeObjAddr(),HandWriteRecognizer.getSvmModelFilePath(activityContext));
@@ -67,19 +68,48 @@ public class HandWriteRecognizer {
      * @return
      */
     public int[][] recognizeMultipleBase64FormatImg(String base64FormatImg, Context activityContext) {
-        Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatImg);
+        Bitmap bitmapImg = this.getBitMap(base64FormatImg);
         Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
         bitmapToMat(bitmapImg, mat);
-        return this.recognizeMulti(mat.getNativeObjAddr(), activityContext.getExternalFilesDir("") + "/" + HandWriteRecognizer.SVM_MODEL_FILE);
+
+        String testFileDir = activityContext.getExternalFilesDir("") + "/" + FileOperator.TEST_IMAGES_DIR;
+        String lastRecognizeImg = activityContext.getExternalFilesDir("") + "/" + FileOperator.TEST_IMAGES_DIR + "/last.bmp";
+        try {
+            File testFile = new File(testFileDir);
+            if (!testFile.exists()) {
+                testFile.mkdir();
+            } else {
+                File[] fileList = testFile.listFiles();
+                for (int i = 0; i < fileList.length; i++) {
+                    fileList[i].delete();
+                }
+            }
+            File last = new File(lastRecognizeImg);
+            FileOutputStream out = new FileOutputStream(last);
+            bitmapImg.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+        return this.recognizeMulti(mat.getNativeObjAddr()
+                , activityContext.getExternalFilesDir("") + "/" + HandWriteRecognizer.SVM_MODEL_FILE
+                , testFileDir);
 //        return this.recognizeMulti(mat.getNativeObjAddr(), HandWriteRecognizer.getSvmModelFilePath(activityContext));
     }
 
-    public void setBase64FormatTrainImg(final String trainVal, String base64FormatTrainImg, Context activityContext, String savePath) {
-        Bitmap bitmapImg = this.getBitMapFromBase64Str(base64FormatTrainImg);
-        Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
-        bitmapToMat(bitmapImg, mat);
+    /**
+     * 保存训练样本图片
+     *
+     * @param trainVal
+     * @param img
+     * @param savePath
+     */
+    public void setTrainImg(final String trainVal, String img, String savePath) {
         File dir = new File(savePath);
         if (!dir.exists()) dir.mkdir();
+
         int existLen = dir.list(new FilenameFilter() {
             @Override
             public boolean accept(File file, String s) {
@@ -87,7 +117,16 @@ public class HandWriteRecognizer {
             }
         }).length;
         String fileName = trainVal + "_" + (existLen + 1) + ".bmp";
-        this.saveTrainImage(mat.getNativeObjAddr(), savePath + "/" + fileName);
+
+        if (img.contains(this.BASE64_STR_CHARACTER)) {
+            Bitmap bitmapImg = this.getBitMap(img);
+            Mat mat = new Mat(bitmapImg.getHeight(), bitmapImg.getWidth(), CvType.CV_8UC4);
+            bitmapToMat(bitmapImg, mat);
+            this.saveTrainImage(mat.getNativeObjAddr(), savePath + "/" + fileName);
+        } else {
+            File imgFile = new File(img);
+            imgFile.renameTo(new File(savePath + "/" + fileName));
+        }
     }
 
     public static String getSvmModelFilePath(Context activityContext) {
@@ -95,7 +134,7 @@ public class HandWriteRecognizer {
         return filesDir + "/" + SVM_MODEL_FILE;
     }
 
-    private Bitmap getBitMapFromBase64Str(String base64Str) {
+    private Bitmap getBitMap(String base64Str) {
         base64Str = base64Str.substring(base64Str.indexOf(this.BASE64_STR_CHARACTER) + this.BASE64_STR_CHARACTER.length(), base64Str.length());
         byte bytes[] = Base64.decode(base64Str, Base64.DEFAULT);
         BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -106,7 +145,7 @@ public class HandWriteRecognizer {
 
     public native int recognize(long imgAddress, String svm_model_path);
 
-    public native int[][] recognizeMulti(long imgAddress, String svm_model_path);
+    public native int[][] recognizeMulti(long imgAddress, String svm_model_path, String cut_image_save_dir);
 
     public native String train(String[] images, String dir, String svm_model_path);
 

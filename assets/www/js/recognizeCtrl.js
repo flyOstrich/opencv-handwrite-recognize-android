@@ -3,7 +3,7 @@ app.controller('recognizeCtrl', function ($scope, $window) {
     this.eventDelegate = $({});
     this.options = {
         width: window.innerWidth,
-        height: 300,
+        height: window.innerHeight*0.5,
         backgroundColor: 'white',
         lineWidth: 5, //px
         undo: true,
@@ -31,4 +31,9 @@ app.controller('recognizeCtrl', function ($scope, $window) {
     this.clear = function () {
         this.version = 0;
     };
+    this.undo=function(){
+       if(this.version!=0){
+          this.version--;
+       }
+    }
 });

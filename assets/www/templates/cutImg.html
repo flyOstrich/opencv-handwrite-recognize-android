@@ -1,0 +1,37 @@
+<style>
+    li {
+        width: 24.5%;
+    }
+
+
+
+
+</style>
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" ui-sref="draw"><a href="#">训练样本</a></li>
+    <li role="presentation" ui-sref="train"><a href="#">训练模型</a></li>
+    <li role="presentation" ui-sref="recognize"><a href="#">测试识别</a></li>
+    <li role="presentation" class="active"><a href="#">图片分割</a></li>
+</ul>
+<div class="recognize-draw-area" style="position: relative">
+    <div id="res"></div>
+    <label for="last">最近识别的图像</label>
+    <img ng-src="{{ctrl.lastRecognizeInfo.lastRecognizeImg}}" id="last"/>
+    <label for="cutImages">
+        分割后图片列表
+    </label>
+    <div id="cutImages">
+        <div class="row" style="margin:8px;border-bottom:1px solid gray" ng-repeat="img in ctrl.lastRecognizeInfo.recognizeImgList">
+            <img style="display:inline-block;width:75px;vertical-align: top;"  ng-src="{{img.url}}">
+            <div  style="display:inline-block" >
+                <select class="form-control"
+                        style="display:block"
+                        ng-model="img.selectedLabelCharacterMap"
+                        ng-options="x.character for x in ctrl.labelCharacterList"></select>
+                <button style="margin-top:5px"
+                        class="btn btn-primary"
+                        ng-click="ctrl.addToTrainSet(img)">加入样本</button>
+            </div>
+        </div>
+    </div>
+</div>

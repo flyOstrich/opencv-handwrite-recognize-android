@@ -12,7 +12,8 @@ int getColorCount(cv::Mat src, int bgColor) {
     for (int i = 0; i < src.rows; i++) {
         uchar *rowData = src.ptr<uchar>(i);
         for (int j = 0; j < src.cols; j++) {
-            if (rowData[j] != bgColor)res++;
+            if(bgColor-50>rowData[j]||rowData[j]>bgColor+50)res++;
+//            if (rowData[j] != bgColor)res++;
         }
     }
     return res;
