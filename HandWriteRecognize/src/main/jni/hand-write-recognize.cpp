@@ -5,13 +5,15 @@
 #include "param-util.h"
 #include "image-util.h"
 #include "type-util.h"
-#include <stdlib.h>
+#include "recognizer.h"
 
 using namespace cv;
 using namespace cv::ml;
 using namespace std;
 using namespace Util;
 
+
+Recognizer recognizer;
 /**********************************************************************************
 Func    Name: recognize
 Descriptions: 将一张图片识别识别为单个文字结果
@@ -88,6 +90,7 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognizeMulti(
     LOGD("s_cutimg_save_dir %s", s_cutimg_save_dir.c_str());
     Mat recognizing_image = *(Mat *) jl_recognizing_image;
     //将图片灰度化
+
     Mat gray(Size(recognizing_image.cols, recognizing_image.rows), CV_8UC1);
     cvtColor(recognizing_image, gray, cv::COLOR_BGR2GRAY);
     LOGD("将图片灰度化(width:%d,height:%d)", gray.cols, gray.rows);
@@ -121,9 +124,8 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognizeMulti(
                 imwrite(cut_image.c_str(), characterMat);
             }
             Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(characterMat);
+
             jint recognize_result = svm->predict(descriptorMat);
-//            svm->empty();
-//            svm = StatModel::load<SVM>(s_svm_model_path.c_str());
             LOGD("---------predict result %d------------", recognize_result);
             rowRecognizeRes[index] = recognize_result;
             rowImages.pop_back();
@@ -135,6 +137,30 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_recognizeMulti(
         idx++;
         characterImageMatrix.pop_back();
     }
+
+//    cv::Mat mat1=Mat::zeros(1,100,CV_32F);
+//    uchar* row1=mat1.ptr<uchar>(0);
+//    row1[2]=5;
+//    row1[4]=6;
+//    row1[8]=5;
+//    row1[18]=9;
+//    row1[18]=9;
+//    row1[18]=94;
+//    row1[28]=93;
+//    row1[68]=91;
+//    Util::ImageConverter::printMatrix(mat1);
+//    cv::Mat mat2=Mat::zeros(1,100,CV_32F);
+//    Util::ImageConverter::printMatrix(mat2);
+    cv::Mat img1 = cv::imread(
+            "/storage/sdcard/Android/data/com.example.handwrite.test/files/testImages/00_img.bmp");
+    cv::Mat img2 = cv::imread(
+            "/storage/sdcard/Android/data/com.example.handwrite.test/files/testImages/01_img.bmp");
+    cv::Mat dmat1 = Trainer::HogComputer::getHogDescriptorMat(img1);
+    cv::Mat dmat2 = Trainer::HogComputer::getHogDescriptorMat(img2);
+    double val = cv::compareHist(dmat1, dmat2, HistCompMethods::HISTCMP_INTERSECT);
+    LOGD("va is %f", val);
+
+
     return rtObjArray;
 }
 
@@ -206,9 +232,10 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_testImageOperate(
     std::string s_img_save_location = Util::ParamConverter::convertJstringToString(env,
                                                                                    img_save_location);
     cvtColor(img_mat, gray, cv::COLOR_BGR2GRAY);
-    cv::Mat swap(cv::Size(gray.rows, gray.cols), CV_8UC1);
-    cv::Mat noEmptyRes = Util::ImageConverter::removeEmptySpace(swap);
+    cv::Mat noEmptyRes = Util::ImageConverter::removeEmptySpace(gray);
     cv::Mat resizeRes = Util::ImageConverter::resize(noEmptyRes, TRAIN_IMAGE_SIZE);
+    cv::Mat thinRes = Util::ImageConverter::thinImage(resizeRes);
+    recognizer.recognizeRows(thinRes);
     LOGD("img save location ---->%s", s_img_save_location.c_str());
 }
 

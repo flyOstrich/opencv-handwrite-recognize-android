@@ -56,7 +56,8 @@ void Trainer::HogComputer::trainSvm(std::pair<cv::Mat, cv::Mat> train_data,
 //    svm->setTermCriteria(cv::TermCriteria( CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 1000, 1e-3 ));
     svm->setKernel(cv::ml::SVM::LINEAR  );
     svm->setType(
-            cv::ml::SVM::C_SVC); // C_SVC; // EPSILON_SVR; // may be also NU_SVR; // do regression task
+            cv::ml::SVM::NU_SVC); // C_SVC; // EPSILON_SVR; // may be also NU_SVR; // do regression task
+    svm->setNu(0.5);
     svm->train(train_data_mat, cv::ml::ROW_SAMPLE, train_data_labels);
     LOGD("method trainSvm save %s",trained_result_location.c_str());
     svm->save(trained_result_location);
@@ -121,7 +122,7 @@ cv::Mat Trainer::HogComputer::getHogDescriptorForImage(cv::Mat image) {
     hog.compute(image, descriptors,TRAIN_IMAGE_SIZE, cv::Size(0, 0), location);
     int size=descriptors.size();
     Mat dMat = cv::Mat(descriptors).clone();
-    Mat resMat(1,size,CV_32FC1);
+    Mat resMat(1,size,CV_32F);
     cv::transpose(dMat,resMat);
     return resMat;
 }

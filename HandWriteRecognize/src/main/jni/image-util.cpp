@@ -12,7 +12,7 @@ int getColorCount(cv::Mat src, int bgColor) {
     for (int i = 0; i < src.rows; i++) {
         uchar *rowData = src.ptr<uchar>(i);
         for (int j = 0; j < src.cols; j++) {
-            if(bgColor-50>rowData[j]||rowData[j]>bgColor+50)res++;
+            if (bgColor - 50 > rowData[j] || rowData[j] > bgColor + 50)res++;
 //            if (rowData[j] != bgColor)res++;
         }
     }
@@ -531,6 +531,10 @@ cv::Mat Util::ImageConverter::dilate(cv::Mat src) {
     Mat element = getStructuringElement(MORPH_CROSS, Size(2, 2));
     cv::dilate(src, res, element);
     return res;
+}
+
+int Util::ImageConverter::getMatColorCount(cv::Mat src, int bgColor) {
+    return getColorCount(src, bgColor);
 }
 
 

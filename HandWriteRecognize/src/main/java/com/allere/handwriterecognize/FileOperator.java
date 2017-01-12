@@ -3,7 +3,6 @@ package com.allere.handwriterecognize;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.nfc.Tag;
 import android.util.Log;
 
 import org.opencv.core.CvType;
@@ -11,7 +10,6 @@ import org.opencv.core.Mat;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -40,33 +38,38 @@ public class FileOperator {
 
     /**
      * 读取磁盘上的图片并将其转化为Mat格式
+     *
      * @param imagePath 图片地址
      * @return
      */
-    public Mat convertImg2Mat(String imagePath){
+    public Mat convertImg2Mat(String imagePath) {
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = false;
-        Bitmap img=BitmapFactory.decodeFile(imagePath,opts);
+        Bitmap img = BitmapFactory.decodeFile(imagePath, opts);
         Mat mat = new Mat(img.getHeight(), img.getWidth(), CvType.CV_8UC4);
         bitmapToMat(img, mat);
         return mat;
     }
+
     /**
      * 读取磁盘上的图片并将其转化为Mat格式
+     *
      * @param imgFileInputStream 图片文件
      * @return
      */
-    public Mat convertImg2Mat(InputStream imgFileInputStream) throws IOException{
-        int available=imgFileInputStream.available();
-        byte[] buffer=new byte[available];
+    public Mat convertImg2Mat(InputStream imgFileInputStream) throws IOException {
+        int available = imgFileInputStream.available();
+        byte[] buffer = new byte[available];
         imgFileInputStream.read(buffer);
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = false;
-        Bitmap img=BitmapFactory.decodeByteArray(buffer,0,buffer.length,opts);
+        Bitmap img = BitmapFactory.decodeByteArray(buffer, 0, buffer.length, opts);
         Mat mat = new Mat(img.getHeight(), img.getWidth(), CvType.CV_8UC4);
         bitmapToMat(img, mat);
         return mat;
     }
+
+
     /**
      * 获取assets目录中指定目录下的文件列表
      *
@@ -87,13 +90,13 @@ public class FileOperator {
      */
     public String[] getFilesDirFileNames(final String dirName, boolean getAbsolutePath) {
         Context ctx = this.getCtx();
-        File dir=new File(ctx.getFilesDir().getAbsolutePath()+"/"+dirName);
-        if(!dir.exists())return new String[0];
-        if(!getAbsolutePath) return dir.list();
-        String[] fileList=dir.list();
-        String[] res=new String[fileList.length];
-        for(int i=0;i<fileList.length;i++){
-            res[i]=dir.getAbsolutePath()+"/"+fileList[i];
+        File dir = new File(ctx.getFilesDir().getAbsolutePath() + "/" + dirName);
+        if (!dir.exists()) return new String[0];
+        if (!getAbsolutePath) return dir.list();
+        String[] fileList = dir.list();
+        String[] res = new String[fileList.length];
+        for (int i = 0; i < fileList.length; i++) {
+            res[i] = dir.getAbsolutePath() + "/" + fileList[i];
         }
         return res;
     }
@@ -128,7 +131,7 @@ public class FileOperator {
         String svmModelLocation = HandWriteRecognizer.getSvmModelFilePath(activityContext);
         File svmModel = new File(svmModelLocation);
         if (svmModel.exists()) { //文件已经存在
-            return true;
+            svmModel.delete();
         }
         try {
             InputStream in = activityContext.getAssets().open(SVM_MODEL_FILE_DIR + "/" + HandWriteRecognizer.SVM_MODEL_FILE);
@@ -199,7 +202,6 @@ public class FileOperator {
     public String getDataImageDir(String fileDir) {
         return this.getCtx().getFilesDir().getAbsolutePath() + "/" + fileDir;
     }
-
 
 
     public Context getCtx() {

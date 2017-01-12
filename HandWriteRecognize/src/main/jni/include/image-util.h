@@ -38,9 +38,13 @@ namespace Util {
         static cv::Mat thinImage(cv::Mat src);
 
         //图像二值化
-        static cv::Mat twoValue(cv::Mat src, int value,bool swapColor);
+        static cv::Mat twoValue(cv::Mat src, int value, bool swapColor);
+
         //图像膨胀
         static cv::Mat dilate(cv::Mat src);
+
+        //获取灰度图给出颜色点的个数
+        static int getMatColorCount(cv::Mat src, int bgColor);
     };
 
 }

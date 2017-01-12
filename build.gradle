@@ -244,7 +244,7 @@ dependencies {
     debugCompile project(path: 'CordovaLib', configuration: 'debug')
     releaseCompile project(path: 'CordovaLib', configuration: 'release')
     // SUB-PROJECT DEPENDENCIES END
-    debugCompile project(':HandWriteRecognize')
+    compile project(':HandWriteRecognize')
     compile project(':openCVLibrary310')
 }
 

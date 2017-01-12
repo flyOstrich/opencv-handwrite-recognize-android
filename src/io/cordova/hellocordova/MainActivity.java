@@ -20,10 +20,6 @@
 package io.cordova.hellocordova;
 
 import android.os.Bundle;
-import android.util.Log;
-
-import com.allere.handwriterecognize.FileOperator;
-import com.allere.handwriterecognize.HandWriteRecognizer;
 
 import org.apache.cordova.CordovaActivity;
 

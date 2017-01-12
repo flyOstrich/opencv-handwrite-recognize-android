@@ -2,11 +2,9 @@ package com.allere.handwrite;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
+
 
 import com.allere.handwriterecognize.FileOperator;
 import com.allere.handwriterecognize.HandWriteRecognizer;
@@ -19,21 +17,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
 
 import io.cordova.hellocordova.Main2Activity;
 
-import static org.opencv.android.Utils.bitmapToMat;
 
 /**
  * Created by pjl on 2016/12/17.

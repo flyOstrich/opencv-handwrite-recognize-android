@@ -3,23 +3,15 @@ package com.allere.handwriterecognize;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.util.Base64;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
-import java.util.List;
 
 import static org.opencv.android.Utils.bitmapToMat;
 
@@ -94,7 +86,8 @@ public class HandWriteRecognizer {
             e.printStackTrace();
         }
         return this.recognizeMulti(mat.getNativeObjAddr()
-                , activityContext.getExternalFilesDir("") + "/" + HandWriteRecognizer.SVM_MODEL_FILE
+//                , activityContext.getExternalFilesDir("") + "/" + HandWriteRecognizer.SVM_MODEL_FILE
+                , activityContext.getFilesDir().getAbsolutePath() + "/" + HandWriteRecognizer.SVM_MODEL_FILE
                 , testFileDir);
 //        return this.recognizeMulti(mat.getNativeObjAddr(), HandWriteRecognizer.getSvmModelFilePath(activityContext));
     }
@@ -134,7 +127,7 @@ public class HandWriteRecognizer {
         return filesDir + "/" + SVM_MODEL_FILE;
     }
 
-    private Bitmap getBitMap(String base64Str) {
+    public Bitmap getBitMap(String base64Str) {
         base64Str = base64Str.substring(base64Str.indexOf(this.BASE64_STR_CHARACTER) + this.BASE64_STR_CHARACTER.length(), base64Str.length());
         byte bytes[] = Base64.decode(base64Str, Base64.DEFAULT);
         BitmapFactory.Options opts = new BitmapFactory.Options();

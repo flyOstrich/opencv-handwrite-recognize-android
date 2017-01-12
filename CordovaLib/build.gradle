@@ -32,6 +32,9 @@ ext {
     cdvBuildToolsVersion = privateHelpers.findLatestInstalledBuildTools()
 }
 android {
+    lintOptions {
+        abortOnError false
+    }
     compileSdkVersion cdvCompileSdkVersion
     buildToolsVersion cdvBuildToolsVersion
     publishNonDefault true
