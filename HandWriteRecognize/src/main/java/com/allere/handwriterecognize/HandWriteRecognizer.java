@@ -147,4 +147,6 @@ public class HandWriteRecognizer {
     public native void testImageOperate(long matAddress, String imageSaveAddress);
 
     public native void saveTrainImage(long matAddress, String imageSaveAddress);
+
+    public native void saveStroke(long strokeMat, String strokeId, String recognizeStatus);
 }

@@ -226,6 +226,7 @@ angular.module('pw.canvas-painter')
 
         var copyTmpImage = function() {
           scope.eventDelegate.trigger("paintEnd");
+          console.log(ppts)
           if (options.undo) {
             scope.$apply(function() {
               undoCache.push(ctx.getImageData(0, 0, canvasTmp.width, canvasTmp.height));

@@ -45,6 +45,16 @@ namespace Util {
 
         //获取灰度图给出颜色点的个数
         static int getMatColorCount(cv::Mat src, int bgColor);
+
+        //获取图片的边界
+        static cv::Rect getImageBorderBox(cv::Mat src, int bgColor);
+
+        //将图片灰度化
+        static cv::Mat getGrayImage(cv::Mat src);
+
+        //获取比划中点
+        static cv::Point getStrokeCenterPoint(cv::Mat &stroke, cv::Rect strokeBorder,int bgColor);
+
     };
 
 }

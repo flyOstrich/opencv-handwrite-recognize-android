@@ -231,10 +231,13 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_testImageOperate(
     cv::Mat img_mat = *(cv::Mat *) mat_address;
     std::string s_img_save_location = Util::ParamConverter::convertJstringToString(env,
                                                                                    img_save_location);
-    cvtColor(img_mat, gray, cv::COLOR_BGR2GRAY);
-    cv::Mat noEmptyRes = Util::ImageConverter::removeEmptySpace(gray);
-    cv::Mat resizeRes = Util::ImageConverter::resize(noEmptyRes, TRAIN_IMAGE_SIZE);
-    cv::Mat thinRes = Util::ImageConverter::thinImage(resizeRes);
+    cvtColor(img_mat, gray, cv::COLOR_BGRA2GRAY);
+//    cv::Mat noEmptyRes = Util::ImageConverter::removeEmptySpace(gray);
+//    cv::Mat resizeRes = Util::ImageConverter::resize(gray, TRAIN_IMAGE_SIZE);
+    cv::Mat thinRes = Util::ImageConverter::thinImage(gray);
+
+    cv::Rect rect=Util::ImageConverter::getImageBorderBox(thinRes,Util::ImageConverter::getImageBgColor(thinRes));
+
     recognizer.recognizeRows(thinRes);
     LOGD("img save location ---->%s", s_img_save_location.c_str());
 }
@@ -273,6 +276,35 @@ Java_com_allere_handwriterecognize_HandWriteRecognizer_saveTrainImage(
     LOGD("img save location ---->%s", s_img_save_location.c_str());
     imwrite(s_img_save_location.c_str(), res);
 }
+
+/**********************************************************************************
+Func    Name: saveStroke
+Descriptions: 保存手写中的每一比划
+Input   para: stroke_mat 比划图片
+Input   para: stroke_id  比划ID
+Input   para: recognize_status Recognizer::RECOGNIZE_STATUS   识别状态
+***********************************************************************************/
+extern "C"
+void
+Java_com_allere_handwriterecognize_HandWriteRecognizer_saveStroke(
+        JNIEnv *env,
+        jobject,
+        jlong stroke_mat,
+        jstring stroke_id,
+        jstring recognize_status) {
+    Mat strokeMat = *(cv::Mat *) stroke_mat;
+    Mat gray;
+    int channel=strokeMat.channels();
+    int depth=strokeMat.depth();
+    cvtColor(strokeMat, gray, cv::COLOR_BGRA2GRAY);
+//    string s_recognize_status =ParamConverter::convertJstringToString(env,recognize_status);
+    string s_stroke_id =ParamConverter::convertJstringToString(env,stroke_id);
+    recognizer.pushStroke(gray,s_stroke_id);
+
+}
+
+
+
 
 
 

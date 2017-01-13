@@ -58,6 +58,22 @@ public class HandWriteRecognizeTest {
         bitmapToMat(imgBitMap,mat);
         handWriteRecognizer.testImageOperate(mat.getNativeObjAddr(),"");
     }
+    @Test
+    public void testSaveStroke() throws Exception {
+        InputStream in = this.ctx.getAssets().open("testBase64/testRecognizeBase64Strokes.txt");
+        byte[] buffer =new byte[in.available()];
+        in.read(buffer);
+        String base64Strokes=new String(buffer);
+        String[] base64StrokesAry=base64Strokes.split("\n");
+        for(int i=0;i<base64StrokesAry.length;i++){
+            String base64Img=base64StrokesAry[i];
+            Bitmap imgBitMap=handWriteRecognizer.getBitMap(base64Img);
+            Mat mat = new Mat(imgBitMap.getHeight(), imgBitMap.getWidth(), CvType.CV_8UC4);
+            bitmapToMat(imgBitMap,mat);
+//            handWriteRecognizer.saveStroke(mat.getNativeObjAddr(),"this is stroke id2","status2");
+        }
+
+    }
 
 
 }

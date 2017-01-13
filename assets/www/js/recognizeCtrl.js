@@ -1,16 +1,27 @@
 var app = angular.module('app');
 app.controller('recognizeCtrl', function ($scope, $window) {
+    var me = this;
     this.eventDelegate = $({});
+    this.dataUrlList=[];
+    this.eventDelegate.on('paintEnd',function(){
+            console.log('paintEnd!');
+            me.dataUrlList.push(document.querySelector('#pwCanvasTmp').toDataURL("image/bmp"));
+            var res="";
+            me.dataUrlList.forEach(function(item){
+                 res+=item+"\n";
+            });
+            console.log(res);
+    })
     this.options = {
         width: window.innerWidth,
         height: window.innerHeight*0.5,
         backgroundColor: 'white',
-        lineWidth: 5, //px
+        lineWidth: 1, //px
         undo: true,
         color: 'black'
     };
     this.version = 0;
-    var me = this;
+
     this.recognizeImg = function () {
         var drawArea = document.querySelector('.recognize-draw-area');
         var url = drawArea.querySelector('#pwCanvasMain').toDataURL();
